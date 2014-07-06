@@ -1,0 +1,249 @@
+<!doctype html>
+<html ng-app="ngView">
+<head>
+	<title>LifeVerse</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
+	<link href="http://fonts.googleapis.com/css?family=Lato:300,700" rel="stylesheet" type="text/css">
+	<link href='default.css' rel='stylesheet' type='text/css'>
+</head>
+
+<body>
+
+<div ng-app="ngView">
+	<div ng-controller="MainCntl" ng-class="paymentClass">
+  	
+		<div class="view-animate-container">
+			<div ng-view class="view-animate">
+				<p>loading ... </p>
+			</div>
+		</div>
+		
+		<div class="subMenu">
+		    <a href="#Verses" ng-hide="isPath('Verses')">Verses</a>
+		    <a href="#Review" ng-hide="isPath('Review')">Review</a>
+		    <a href="#Profile" ng-hide="isPath('Profile')">Profile</a>
+	    </div>
+	
+	</div>
+</div>
+
+
+<!-- templates -->
+<script type="text/ng-template" id="verses.html">
+	<div>
+		<a href="#Add">Add passage</a>
+		<ul ng-repeat="passage in passages">
+			<li><a href="#Verses/{{passage.id}}">{{passage.display}}</li>
+		</ul>
+	</div>
+</script>
+
+<script type="text/ng-template" id="verse_learn.html">
+	<div>
+		<a href="#Verses" class="leftBtn">Exit</a>
+		
+		<div ng-show="hearts>0">
+			<ul class="steps">
+				<li ng-repeat="step in steps" ng-class="{cur:step==curStep,rem:step.type==1}"></li>
+			</ul>
+			
+			<ul class="hearts" ng-hide="curStep.type==1">
+				<li ng-class="{active:hearts>=1}">♥</li>
+				<li ng-class="{active:hearts>=2}">♥</li>
+				<li ng-class="{active:hearts>=3}">♥</li>
+			</ul>
+			<p>{{phrase}}</p>
+			
+			<!-- Type 1: display phrases -->
+			<div ng-show="lessonType==1">
+				<h2 class="screenTitle">
+					{{passage.display}} 
+					<a href="#Verses/{{passage.id}}/edit" class="rightBtn">Edit</a>
+				</h2>
+				<p>Remember the highlighted phrase.</p>
+				<ul class="remPhrase">
+					<li ng-repeat="phrase in verse.phrases" ng-class="{cur:phrase==curStep.phrase}">{{phrase}}</li>
+				</ul>
+			</div>
+			
+			<!-- Type 2: Listen to phrase -->
+			<div ng-show="lessonType==2">
+				<h2 class="screenTitle">
+					{{passage.display}} 
+					<a href="#Verses/{{passage.id}}/edit" class="rightBtn">Edit</a>
+				</h2>
+				<p>Listen to the phrase at least three times.</p>
+				<p>{{phrase}}<br>
+					<button lv-tap="playPhrase()">Play</button>
+				</p>
+				<p class="tip">Tip: Think about the meaning as you listen.</p>
+			</div>
+			
+			<!-- Type 3: Select the missing word -->
+			<div ng-show="lessonType==3">
+				<h2 class="screenTitle">{{passage.display}}</h2>
+				<p>Select the missing word.</p>
+				<ul>
+					<li ng-repeat="verse in passage.verses">
+						<ul>
+							<li ng-repeat="word in missingWords"><input type="radio" ng-model=""> {{word}}</li>
+						</ul>
+					</li>
+				</ul>
+				<p class="tip">Tip: Think about the word choice.</p>
+			</div>
+			
+			<!-- Type 4: Put words in correct order -->
+			<div ng-show="lessonType==4">
+				<h2 class="screenTitle">{{passage.display}}</h2>
+				<p>Drag the words into the correct order.</p>
+				<div class="wordChoices" ui-sortable ng-model="curStep.phrase">
+					<span class="word" ng-repeat="word in curStep.phrase track by $index">{{word}}</span>
+				</div>
+				<p class="tip">Tip: Think about the order of the words.</p>
+			</div>
+			
+			<!-- Type 5: Choose all words from list of words -->
+			<div ng-show="lessonType==5">
+				<h2 class="screenTitle">{{passage.display}}</h2>
+				<p>Select the correct words in order.</p>
+				<div class="wordSelections"></div>
+				<div class="wordChoices" ui-sortable ng-model="curStep.phrase">
+					<span class="word" ng-repeat="word in curStep.phrase track by $index">{{word}}</span>
+				</div>
+				<p class="tip">Tip: Think about the meaning of each word.</p>
+			</div>
+			
+			<!-- Type 6: Recite the phrase aloud -->
+			<div ng-show="lessonType==6">
+				<h2 class="screenTitle">{{passage.display}}</h2>
+				<p>Recite the phrase aloud.</p>
+				<div>
+					<button>Listen</button><br>
+					<a href="#">I can’t use the microphone right now.</a>
+				</div>
+				<p class="tip">Tip: Think about the meaning of the phrase.</p>
+			</div>
+			
+			<!-- Type 7: Type entire phrase -->
+			<div ng-show="lessonType==7">
+				<h2 class="screenTitle">{{passage.display}}</h2>
+				<p>Type the phrase below.</p>
+				<textarea ng-model="typedPhrase"></textarea>
+				<p class="tip">Tip: Think about the meaning of the words.</p>
+			</div>
+			
+			<!--<h3 ng-show="correct">Correct!</h3>
+			<h3 ng-hide="correct">Sorry, not quite right.</h3>-->
+			<button class="continue" lv-tap="check()" ng-hide="checked">Check</button>
+			<button class="continue" lv-tap="continue()" ng-show="checked">Continue</button>
+		</div>
+		<div ng-show="hearts<=0">
+			<p>Uh oh, you lost your hearts!</p>
+		</div>
+	</div>
+</script>
+
+<script type="text/ng-template" id="review.html">
+	<div>
+		<h2>Review</h2>
+	</div>
+</script>
+  
+<script type="text/ng-template" id="add_books.html">
+	<div>
+		<ul>
+			<li ng-repeat="group in groups" class="{{group.class}}">
+				<h2>{{group.name}}</h2>
+				<ul ng-repeat="book in group.books" class="bookList">
+					<li lv-tap="showBook(book)">{{book.name}}</li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+</script>
+
+<script type="text/ng-template" id="add_chapters.html">
+	<div>
+		<a href="#Add"></a>
+		<h2>{{book.name}}</h2>
+		
+		<ul class="chapterList">
+			<li ng-repeat="chapter in chapters"><a href="{{chapter.link}}">{{chapter.number}}</a></li>
+		</ul>
+	</div>
+</script>
+
+<script type="text/ng-template" id="add_verses.html">
+	<div>
+		<a href="#Verses" class="leftBtn">Cancel</a>
+		<h2 class="screenTitle">{{chapterName}}</h2>
+		<a lv-tap="addPassage()" ng-show="activeVerses.length" class="rightBtn">Learn ({{activeVerses.length}} verses)</a>
+		
+		<p ng-show="loading">Loading ...</p>
+		
+		<div ng-hide="loading">
+			<p><span ng-hide="displayName">Select verses to learn</span><span ng-show="displayName">{{displayName}}</span></p>
+			<ul class="verseList">
+				<li ng-repeat="verse in passage.verses" lv-tap="selectVerse(verse)" ng-class="{active: verse.active}">
+					<span class="verseNum">{{verse.number}}</span>
+					<span class="verseText">{{verse.text}}</span>
+				</li>
+			</ul>
+		</div>
+	</div>
+</script>
+
+<script type="text/ng-template" id="profile.html">
+	<div>
+		<h2>Choose Preferences</h2>
+		<form ng-submit="savePrefs()" ng-hide="loadingVersions">
+			<p>Select your language: <br><select ng-model="selectedLanguage" ng-options="language.name for language in languages"></select></p>
+			<p>Select your preferred Bible version: <br><select ng-model="selectedVersion" ng-options="version.abbreviation + ' - ' + version.name for version in selectedLanguage.versions"></select></p>
+			<p><button type="submit">Save settings</button></p>
+		</form>
+		<h2>Add Friends</h2>
+		<p>Facebook, Twitter, G+</p>
+		<div ng-show="loadingVersions">loading ...</div>
+	</div>
+</script>
+
+
+<!-- scripts -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="cordova-2.3.0.js"></script>
+
+<script type="text/javascript" charset="utf-8" src="data/books.json"></script>
+
+<script type="text/javascript">
+	// Make the console debugger work properly
+	/*console = new Object();
+	console.log = function(log) {
+	  var iframe = document.createElement("IFRAME");
+	  iframe.setAttribute("src", "ios-log:#iOS#" + log);
+	  document.documentElement.appendChild(iframe);
+	  iframe.parentNode.removeChild(iframe);
+	  iframe = null;    
+	}
+	console.debug = console.log;
+	console.info = console.log;
+	console.warn = console.log;
+	console.error = console.log;*/
+</script>
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.7/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.7/angular-route.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.7/angular-sanitize.min.js"></script>
+<script src="angular/angular-resource.js"></script>
+<script src="angular/localStorageModule.js"></script>
+<script type="text/javascript" src="sortable.js"></script>
+
+<script type="text/javascript" src="default.js"></script>
+<script type="text/javascript">
+	//app.initialize();
+</script>
+
+</body>
+</html>
