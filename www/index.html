@@ -46,7 +46,7 @@
 		
 		<div ng-show="hearts>0">
 			<ul class="steps">
-				<li ng-repeat="step in steps" ng-class="{cur:step==curStep,rem:step.type==1}"></li>
+				<li ng-repeat="step in steps" ng-class="{cur:step==curStep,rem:step.type.number==1}"></li>
 			</ul>
 			
 			<ul class="hearts" ng-hide="curStep.type==1">
@@ -76,7 +76,7 @@
 				</h2>
 				<p>Listen to the phrase at least three times.</p>
 				<p>{{phrase}}<br>
-					<button lv-tap="playPhrase()">Play</button>
+					<button lv-tap="curStep.type.playAudio()">Play</button> {{listenCount}}/3
 				</p>
 				<p class="tip">Tip: Think about the meaning as you listen.</p>
 			</div>
@@ -121,7 +121,7 @@
 				<h2 class="screenTitle">{{passage.display}}</h2>
 				<p>Recite the phrase aloud.</p>
 				<div>
-					<button>Listen</button><br>
+					<button lv-tap="curStep.type.listen()">Listen</button><br>
 					<a href="#">I can’t use the microphone right now.</a>
 				</div>
 				<p class="tip">Tip: Think about the meaning of the phrase.</p>
@@ -135,13 +135,13 @@
 				<p class="tip">Tip: Think about the meaning of the words.</p>
 			</div>
 			
-			<div ng-show="curStep.checkable">
+			<div ng-show="curStep.type.checkable">
 				<!--<h3 ng-show="correct">Correct!</h3>
 				<h3 ng-hide="correct">Sorry, not quite right.</h3>-->
-				<button class="continue" lv-tap="check()" ng-hide="checked">Check</button>
+				<button class="continue" lv-tap="check()" ng-hide="canContinue">Check</button>
 			</div>
 			
-			<button class="continue" lv-tap="continue()" ng-show="checked">Continue</button>
+			<button class="continue" lv-tap="continue()" ng-show="canContinue">Continue</button>
 		</div>
 		<div ng-show="hearts<=0">
 			<p>Uh oh, you lost your hearts!</p>

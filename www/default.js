@@ -690,13 +690,26 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 	
 	$scope.heartsMax = 3;
 	$scope.hearts = 3;
-	$scope.checked = true;
+	$scope.canContinue = true;
+	$scope.lessonType = 1;
+	$scope.steps = [];
+	
+	var curStepNum = 0;
 	var lessonTypes = [
 		// listen to the phrase
 		{
 			number: 2,
 			init: function() {
 				console.log('init');
+				$scope.listenCount = 0;
+				$scope.canContinue = false;
+			},
+			playAudio: function() {
+				console.log('audio');
+				$scope.listenCount++;
+				if ($scope.listenCount >= 3) {
+					$scope.canContinue = true;
+				}
 			},
 			checkable: false,
 		},
@@ -706,11 +719,12 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 			number: 3,
 			init: function() {
 				console.log('init');
+				$scope.canContinue = true;
 			},
-			checkable: true,
+			checkable: false,
 			check: function() {
 				console.log('check');
-				$scope.checked = true;
+				$scope.canContinue = true;
 			},
 		},
 		
@@ -719,6 +733,7 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 			number: 4,
 			init: function() {
 				console.log('init');
+				$scope.canContinue = false;
 			},
 			checkable: true,
 			check: function() {
@@ -729,7 +744,7 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 					$scope.correct = false;
 					$scope.hearts--;
 				}
-				$scope.checked = true;
+				$scope.canContinue = true;
 			},
 		},
 		
@@ -738,6 +753,7 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 			number: 5,
 			init: function() {
 				console.log('init');
+				$scope.canContinue = false;
 			},
 			checkable: true,
 			check: function() {
@@ -748,7 +764,7 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 					$scope.correct = false;
 					$scope.hearts--;
 				}
-				$scope.checked = true;
+				$scope.canContinue = true;
 			},
 		},
 		
@@ -757,12 +773,12 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 			number: 6,
 			init: function() {
 				console.log('init');
+				$scope.canContinue = false;
 			},
-			checkable: true,
-			check: function() {
-				console.log('check');
-				$scope.checked = true;
+			listen: function() {
+				$scope.canContinue = true;
 			},
+			checkable: false
 		},
 		
 		// type entire phrase
@@ -770,17 +786,15 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 			number: 7,
 			init: function() {
 				console.log('init');
+				$scope.canContinue = false;
 			},
 			checkable: true,
 			check: function() {
 				console.log('check');
-				$scope.checked = true;
+				$scope.canContinue = true;
 			},
 		}
 	];
-	var curStepNum = 0;
-	$scope.lessonType = 1;
-	$scope.steps = [];
 	
 	// get selected passage
 	angular.forEach($rootScope.passages, function(passage) {
@@ -790,8 +804,8 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 		}
 	});
 	
+	// build lesson list for this round
 	var stepsPerPhrase = Math.floor(16 / $scope.verse.phrases.length);
-	
 	angular.forEach($scope.verse.phrases, function(phrase) {
 		var types = lessonTypes.slice(0,lessonTypes.length);
 		var phraseParts = phrase.trim()
@@ -801,6 +815,9 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 			type: {
 				number: 1,
 				checkable: false,
+				init: function() {
+					$scope.canContinue = true;
+				}
 			},
 			phrase: phrase
 		});
@@ -821,28 +838,21 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 	});
 	$scope.curStep = $scope.steps[curStepNum];
 	
+	// check lesson to see if answers are correct
 	$scope.check = function() {
 		if ($scope.curStep.type.checkable) {
 			$scope.curStep.type.check.call($scope.curStep);
 		}
-		
-		/*$scope.checked = true;
-		var type = $scope.curStep.type.number;
-		if (type == 4 || type == 5) {
-			if ($scope.curStep.phrase.equals($scope.curStep.phraseParts)) {
-				$scope.correct = true;
-			} else {
-				$scope.correct = false;
-				$scope.hearts--;
-			}
-		}*/
 	};
 	
+	// progress to next step in lesson
 	$scope.continue = function() {
 		curStepNum++;
 		$scope.curStep = $scope.steps[curStepNum];
 		$scope.lessonType = $scope.curStep.type.number;
-		$scope.checked = false;
+		$scope.curStep.type.init.call($scope.curStep);
+		console.log('continue');
+		//$scope.continue = false;
 	};
 	
 }
