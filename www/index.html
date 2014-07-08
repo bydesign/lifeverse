@@ -135,9 +135,12 @@
 				<p class="tip">Tip: Think about the meaning of the words.</p>
 			</div>
 			
-			<!--<h3 ng-show="correct">Correct!</h3>
-			<h3 ng-hide="correct">Sorry, not quite right.</h3>-->
-			<button class="continue" lv-tap="check()" ng-hide="checked">Check</button>
+			<div ng-show="curStep.checkable">
+				<!--<h3 ng-show="correct">Correct!</h3>
+				<h3 ng-hide="correct">Sorry, not quite right.</h3>-->
+				<button class="continue" lv-tap="check()" ng-hide="checked">Check</button>
+			</div>
+			
 			<button class="continue" lv-tap="continue()" ng-show="checked">Continue</button>
 		</div>
 		<div ng-show="hearts<=0">

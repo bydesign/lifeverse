@@ -691,7 +691,93 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 	$scope.heartsMax = 3;
 	$scope.hearts = 3;
 	$scope.checked = true;
-	var lessonTypes = [2,3,4,5,6,7];
+	var lessonTypes = [
+		// listen to the phrase
+		{
+			number: 2,
+			init: function() {
+				console.log('init');
+			},
+			checkable: false,
+		},
+		
+		// select the missing word
+		{
+			number: 3,
+			init: function() {
+				console.log('init');
+			},
+			checkable: true,
+			check: function() {
+				console.log('check');
+				$scope.checked = true;
+			},
+		},
+		
+		// put words in correct order
+		{
+			number: 4,
+			init: function() {
+				console.log('init');
+			},
+			checkable: true,
+			check: function() {
+				console.log('check');
+				if ($scope.curStep.phrase.equals($scope.curStep.phraseParts)) {
+					$scope.correct = true;
+				} else {
+					$scope.correct = false;
+					$scope.hearts--;
+				}
+				$scope.checked = true;
+			},
+		},
+		
+		// choose all words from list of words
+		{
+			number: 5,
+			init: function() {
+				console.log('init');
+			},
+			checkable: true,
+			check: function() {
+				console.log('check');
+				if ($scope.curStep.phrase.equals($scope.curStep.phraseParts)) {
+					$scope.correct = true;
+				} else {
+					$scope.correct = false;
+					$scope.hearts--;
+				}
+				$scope.checked = true;
+			},
+		},
+		
+		// recite the phrase aloud
+		{
+			number: 6,
+			init: function() {
+				console.log('init');
+			},
+			checkable: true,
+			check: function() {
+				console.log('check');
+				$scope.checked = true;
+			},
+		},
+		
+		// type entire phrase
+		{
+			number: 7,
+			init: function() {
+				console.log('init');
+			},
+			checkable: true,
+			check: function() {
+				console.log('check');
+				$scope.checked = true;
+			},
+		}
+	];
 	var curStepNum = 0;
 	$scope.lessonType = 1;
 	$scope.steps = [];
@@ -712,14 +798,17 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 						.replace(/[\.,-\/"“#!$%\^&\*;:{}=\-_`~()]/g,"")
 						.split(' ');
 		$scope.steps.push({
-			type: 1,
+			type: {
+				number: 1,
+				checkable: false,
+			},
 			phrase: phrase
 		});
 		for (var i=0; i < stepsPerPhrase; i++) {
 			var index = Math.floor(Math.random() * types.length);
 			var type = types[index];
 			var retPhrase = phrase;
-			if (type == 4 || type == 5) {
+			if (type.number == 4 || type.number == 5) {
 				retPhrase = shuffleArray(phraseParts.slice(0));
 			}
 			$scope.steps.push({
@@ -733,8 +822,12 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 	$scope.curStep = $scope.steps[curStepNum];
 	
 	$scope.check = function() {
-		$scope.checked = true;
-		var type = $scope.curStep.type;
+		if ($scope.curStep.type.checkable) {
+			$scope.curStep.type.check.call($scope.curStep);
+		}
+		
+		/*$scope.checked = true;
+		var type = $scope.curStep.type.number;
 		if (type == 4 || type == 5) {
 			if ($scope.curStep.phrase.equals($scope.curStep.phraseParts)) {
 				$scope.correct = true;
@@ -742,40 +835,15 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 				$scope.correct = false;
 				$scope.hearts--;
 			}
-		}
+		}*/
 	};
 	
 	$scope.continue = function() {
 		curStepNum++;
 		$scope.curStep = $scope.steps[curStepNum];
-		$scope.lessonType = $scope.curStep.type;
+		$scope.lessonType = $scope.curStep.type.number;
 		$scope.checked = false;
 	};
-	
-	// listen to the phrase
-	if ($scope.lessonType == 2) {
-		
-	
-	// select the missing word
-	} else if ($scope.lessonType == 3) {
-		
-	
-	// put words in correct order
-	} else if ($scope.lessonType == 4) {
-		
-	
-	// choose all words from list of words
-	} else if ($scope.lessonType == 5) {
-		
-	
-	// recite the phrase aloud
-	} else if ($scope.lessonType == 6) {
-		
-	
-	// type entire phrase
-	} else if ($scope.lessonType == 7) {
-		
-	}
 	
 }
 
