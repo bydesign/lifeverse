@@ -899,13 +899,18 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 			
 		// check if done with this verse
 		if (index >= $scope.activeVerse.phrases.length) {
-			$scope.canContinue = true;
+			//$scope.canContinue = true;
 			if ($scope.activeVerse.strength < $scope.strengthMax) {
 				$scope.activeVerse.strength++;
 			}
 			// reset starting values
-			that.phraseIndex = 0;
-			$scope.activePhrase = undefined;
+			if ($scope.activeVerse.strength < $scope.strengthMax) {
+				$scope.reviewVerse($scope.activeVerse);
+			} else {
+				that.phraseIndex = 0;
+				$scope.activePhrase = undefined;
+				$scope.reviewVerse($scope.nextVerse);
+			}
 		
 		// next part of active verse
 		} else {
