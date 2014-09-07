@@ -49,76 +49,22 @@
 				<li ng-repeat="step in steps" ng-class="{cur:step==curStep,rem:step.type.number==1}"></li>
 			</ul>
 			
+			<p class="reference">{{passage.display}}</p>
 			<ul class="hearts" ng-hide="curStep.type==1">
 				<li ng-class="{active:hearts>=1}">♥</li>
 				<li ng-class="{active:hearts>=2}">♥</li>
 				<li ng-class="{active:hearts>=3}">♥</li>
 			</ul>
-			<p>{{phrase}}</p>
 			
-			<!-- Type 1: display phrases -->
+			<!-- Type 1: Type the first letter of each word in the phrase -->
 			<div ng-show="lessonType==1">
-				<h2 class="screenTitle">
-					{{passage.display}} 
-					<a href="#Verses/{{passage.id}}/edit" class="rightBtn">Edit</a>
-				</h2>
-				<p>Remember the highlighted phrase.</p>
-				<ul class="remPhrase">
-					<li ng-repeat="phrase in verse.phrases" ng-class="{cur:phrase==curStep.phrase}">{{phrase}}</li>
-				</ul>
+				<p>Type the phrase below.</p>
+				<textarea ng-model="typedPhrase"></textarea>
+				<p class="tip">Tip: Think about the meaning of the words.</p>
 			</div>
 			
-			<!-- Type 2: Listen to phrase -->
+			<!-- Type 2: Recite the phrase aloud -->
 			<div ng-show="lessonType==2">
-				<h2 class="screenTitle">
-					{{passage.display}} 
-					<a href="#Verses/{{passage.id}}/edit" class="rightBtn">Edit</a>
-				</h2>
-				<p>Listen to the phrase at least three times.</p>
-				<p>{{phrase}}<br>
-					<button lv-tap="curStep.type.playAudio()">Play</button> {{listenCount}}/3
-				</p>
-				<p class="tip">Tip: Think about the meaning as you listen.</p>
-			</div>
-			
-			<!-- Type 3: Select the missing word -->
-			<div ng-show="lessonType==3">
-				<h2 class="screenTitle">{{passage.display}}</h2>
-				<p>Select the missing word.</p>
-				<ul>
-					<li ng-repeat="verse in passage.verses">
-						<ul>
-							<li ng-repeat="word in missingWords"><input type="radio" ng-model=""> {{word}}</li>
-						</ul>
-					</li>
-				</ul>
-				<p class="tip">Tip: Think about the word choice.</p>
-			</div>
-			
-			<!-- Type 4: Put words in correct order -->
-			<div ng-show="lessonType==4">
-				<h2 class="screenTitle">{{passage.display}}</h2>
-				<p>Drag the words into the correct order.</p>
-				<div class="wordChoices" ui-sortable ng-model="curStep.phrase">
-					<span class="word" ng-repeat="word in curStep.phrase track by $index">{{word}}</span>
-				</div>
-				<p class="tip">Tip: Think about the order of the words.</p>
-			</div>
-			
-			<!-- Type 5: Choose all words from list of words -->
-			<div ng-show="lessonType==5">
-				<h2 class="screenTitle">{{passage.display}}</h2>
-				<p>Select the correct words in order.</p>
-				<div class="wordSelections"></div>
-				<div class="wordChoices" ui-sortable ng-model="curStep.phrase">
-					<span class="word" ng-repeat="word in curStep.phrase track by $index">{{word}}</span>
-				</div>
-				<p class="tip">Tip: Think about the meaning of each word.</p>
-			</div>
-			
-			<!-- Type 6: Recite the phrase aloud -->
-			<div ng-show="lessonType==6">
-				<h2 class="screenTitle">{{passage.display}}</h2>
 				<p>Recite the phrase aloud.</p>
 				<div>
 					<button lv-tap="curStep.type.listen()">Listen</button><br>
@@ -127,12 +73,17 @@
 				<p class="tip">Tip: Think about the meaning of the phrase.</p>
 			</div>
 			
-			<!-- Type 7: Type entire phrase -->
-			<div ng-show="lessonType==7">
-				<h2 class="screenTitle">{{passage.display}}</h2>
-				<p>Type the phrase below.</p>
-				<textarea ng-model="typedPhrase"></textarea>
-				<p class="tip">Tip: Think about the meaning of the words.</p>
+			<!-- Type 3: Choose all words from list of words -->
+			<div ng-show="lessonType==3">
+				<div class="verseText">
+					<span class="word" ng-class="{hideWord: word.hidden, filled: word.used, active: word.active}" ng-repeat="word in phrase.words track by $index">
+						<span class="wordText">{{word.text}}</span>
+					</span>
+				</div>
+				<p>Select the correct words in order.</p>
+				<ul class="wordChoices">
+					<li ng-repeat="word in hiddenWords track by $index" lv-tap="chooseWord(word)" ng-class="{used: word.used}">{{word.text}}</li>
+				</ul>
 			</div>
 			
 			<div ng-show="curStep.type.checkable">
