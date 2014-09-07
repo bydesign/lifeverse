@@ -359,7 +359,7 @@ Passage = function(obj, id) {	// assumes json passage object from bibles.org api
     this.start_verse_id = obj.start_verse_id,
     this.display = obj.display;
     this.id = id;
-    this.stars = 0;
+    this.strength = 0;
     
     this.verses = [];
     this.parseText(this.text);
@@ -385,16 +385,17 @@ Passage.prototype = {
 		var verses = $text.text().split(verseMarkerText);
 		verses.shift();	// first item is empty
 		for (var i=0, len=verses.length; i<len; i++) {
-			var verse = new Verse(verses[i], $($verseMarkers[i]).text());
+			var verse = new Verse(verses[i], $($verseMarkers[i]).text(), this.display);
 			this.verses.push(verse);
 		}
 	},
 };
 
-Verse = function(text, number) {
+Verse = function(text, number, passageDisplay) {
+	this.display = passageDisplay.split(':')[0] + ':' + number;
 	this.number = number;
 	this.text = text;
-	this.stars = 0;
+	this.strength = 0;
 	this.phrases = this.parsePhrases(this.text);
 };
 Verse.prototype = {
@@ -544,28 +545,28 @@ Verse.prototype = {
 
 Phrase = function(text) {
 	this.text = text;
-	this.stars = 0;
-	
+	this.strength = 0;
 	this.words = this.parseWords(text);
 };
 
 Phrase.prototype = {
 	parseWords: function(text) {
+		var that = this;
 		var words = text.trim()
 					.replace(/[\.,-\/"“#!$%\^&\*;:{}=\-_`~()]/g,"")
 					.split(' ');
 					
-		var wordList = [];
+		this.words = [];
 		angular.forEach(words, function(wordText) {
-			wordList.push(new Word(wordText));
+			that.words.push(new Word(wordText));
 		});
-		return wordList;
+		return this.words;
 	}
 };
 
 Word = function(text) {
 	this.text = text;
-	this.stars = 0;
+	this.strength = 0;
 	this.hidden = false;
 };
 
@@ -708,14 +709,16 @@ function ReviewCntl($scope) {
 
 function VerseLearnCntl($scope, $rootScope, $routeParams) {
 	console.log('VerseLearnCntl');
+	var that = this;
 	
+	$scope.strengthMax = 3;
 	$scope.heartsMax = 3;
 	$scope.hearts = 3;
-	$scope.canContinue = true;
+	$scope.canContinue = false;
 	$scope.lessonType = 3;
-	$scope.steps = [];
+	//$scope.steps = [];
 	
-	var curStepNum = 0;
+	//var curStepNum = 0;
 	var lessonTypes = [
 		// listen to the phrase
 		// currently disabled
@@ -825,8 +828,107 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 			},
 		}
 	];
+	
+	$scope.selectVerse = function(verse) {
+		if (verse != $scope.activeVerse) {
+			$scope.reviewVerse(verse);
+		}
+	};
+	
+	$scope.reviewVerse = function(verse) {
+		// hide dialog
+		$scope.canContinue = false;
+		$scope.activeVerse = verse;
+		$scope.hearts = 3;
+		that.showAllWords();
+		that.hideRandomWords();
+		$scope.reviewPhrase(0);
+		var verseIndex = $scope.passage.verses.indexOf(verse);
+		if ($scope.passage.verses[verseIndex+1] != undefined) {
+			$scope.nextVerse = $scope.passage.verses[verseIndex+1];
+		}
+	};
+	
+	this.showAllWords = function() {
+		angular.forEach($scope.activeVerse.phrases, function(phrase) {
+			angular.forEach(phrase.words, function(word) {
+				word.used = false;
+			});
+		});
+	};
+	
+	this.hideRandomWords = function() {
+		$scope.hiddenWords = [];
+		angular.forEach($scope.activeVerse.phrases, function(phrase) {
+			var count = phrase.words.length;
+			var needed = count;	// hide all words
+			if (phrase.strength == 0) {
+				needed = Math.round(count * 0.25);	//hide 1/4 of the words
+			} else if (phrase.strength == 1) {
+				needed = Math.round(count * 0.5);	//hide 1/2 of the words
+			} else if (phrase.strength == 2) {
+				needed = Math.round(count * 0.75);	//hide 3/4 of the words
+			}
+			var wordsUsed = [];
+			angular.forEach(phrase.words, function(word, index) {
+				var probability = needed / (count-index);
+				if (Math.random() <= probability && wordsUsed.indexOf(word.text) == -1) {
+					$scope.hiddenWords.push(word);
+					wordsUsed.push(word.text);
+					word.hidden = true;
+					needed--;
+				} else {
+					word.hidden = false;
+				}
+			});
+		});
+		$scope.hiddenWords[0].active = true;
+		$scope.hiddenWordsShuffled = $scope.hiddenWords.slice(0);
+		shuffleArray($scope.hiddenWordsShuffled);
+	};
+	
+	// define missing words
+	$scope.reviewPhrase = function(index) {
+		// complete active phrase
+		if (index > 0) {
+			$scope.activePhrase.complete = true;
+			if ($scope.activePhrase.strength < $scope.strengthMax) {
+				$scope.activePhrase.strength++;
+			}
+		}
+			
+		// check if done with this verse
+		if (index >= $scope.activeVerse.phrases.length) {
+			$scope.canContinue = true;
+			if ($scope.activeVerse.strength < $scope.strengthMax) {
+				$scope.activeVerse.strength++;
+			}
+			// reset starting values
+			that.phraseIndex = 0;
+			$scope.activePhrase = undefined;
+		
+		// next part of active verse
+		} else {
+			that.phraseIndex = index;
+			$scope.activePhrase = $scope.activeVerse.phrases[index];
+		}
+	};
+	
+	this.phraseComplete = function() {
+		var complete = true;
+		angular.forEach($scope.activePhrase.words, function(word) {
+			if (word.hidden && !word.used) {
+				complete = false;
+			}
+		});
+		
+		return complete;
+	};
+	
 	$scope.chooseWord = function(word) {
 		if (word == $scope.hiddenWords[0]) {
+			var index = $scope.hiddenWordsShuffled.indexOf(word);
+			$scope.hiddenWordsShuffled.splice(index, 1);
 			word.used = true;
 			$scope.nextWord();
 		} else {
@@ -835,41 +937,13 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 		}
 	};
 	
-	// define missing words
-	$scope.nextPhrase = function(phrase) {
-		var count = phrase.words.length;
-		var needed = count;	// hide all words
-		if (phrase.stars == 0) {
-			needed = Math.round(count * 0.25);	//hide 1/4 of the words
-		} else if (phrase.stars == 1) {
-			needed = Math.round(count * 0.5);	//hide 1/2 of the words
-		} else if (phrase.stars == 2) {
-			needed = Math.round(count * 0.75);	//hide 3/4 of the words
-		}
-		$scope.hiddenWords = [];
-		angular.forEach(phrase.words, function(word, index) {
-			var probability = needed / (count-index);
-			if (Math.random() <= probability) {
-				$scope.hiddenWords.push(word);
-				word.hidden = true;
-				needed--;
-			} else {
-				word.hidden = false;
-			}
-		});
-		$scope.hiddenWords[0].active = true;
-		$scope.phrase = phrase;
-	};
-	
 	$scope.nextWord = function() {
-		if ($scope.hiddenWords.length > 0) {
-			$scope.hiddenWords[0].active = false;
-			$scope.hiddenWords.shift();
-			if ($scope.hiddenWords.length > 0) {
-				$scope.hiddenWords[0].active = true;
-			}
+		$scope.hiddenWords[0].active = false;
+		$scope.hiddenWords.shift();
+		if (that.phraseComplete()) {
+			$scope.reviewPhrase(that.phraseIndex+1);
 		} else {
-			console.log('next phrase!');
+			$scope.hiddenWords[0].active = true;
 		}
 	};
 	
@@ -877,8 +951,7 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 	angular.forEach($rootScope.passages, function(passage) {
 		if (passage.id == $routeParams.passageId) {
 			$scope.passage = passage;
-			$scope.verse = passage.verses[0];
-			$scope.nextPhrase($scope.verse.phrases[0]);
+			$scope.reviewVerse(passage.verses[0]);
 		}
 	});
 	

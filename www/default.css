@@ -4,7 +4,6 @@ body {
 	font-family: 'Lato', sans-serif;
 	margin: 0;
 	font-size: 2em;
-	line-height: 160%;
 	font-weight: 300;
 }
 #doc, #doc2 {
@@ -46,12 +45,29 @@ a {
 .screenTitle {
 	text-align: center;
 }
-.verses {
+.verses, .phrases {
 	list-style: none;
-	padding-left: 20px;
+	padding: 0;
 }
-.verses li {
-	padding-left: 40px;
+.phrase {
+	color: #999;
+	line-height: 1.4em;
+	margin-bottom: .2em;
+	position: relative;
+}
+.phraseStrength {
+	position: absolute;
+	left: 15px;
+	top: 15px;
+	width: 20px;
+	height: 20px;
+	display: block;
+	font-size: 14px;
+	line-height: 24px;
+	color: #999;
+}
+.phrase.active {
+	color: #fff;
 }
 .verseNum {
 	float: left;
@@ -70,6 +86,16 @@ a {
 	border-color: #66FF00;
 	color: #000;
 }
+.verseRef {
+	color: #666;
+	font-size: 14px;
+	text-transform: uppercase;
+	margin-left: 1em;
+	margin-top: 2em;
+}
+.verse.active > .verseRef {
+	color: #fff;
+}
 .verseList {
 	padding-left: 0;
 	list-style: none;
@@ -83,7 +109,7 @@ a {
 }
 .verseText {
 	display: block;
-	margin-left: 40px;
+	margin-left: 60px;
 }
 .steps > li {
 	list-style: none;
@@ -123,7 +149,16 @@ a {
 	margin-bottom: .5em;
 	padding: .25em;
 }
-.word {
+.wordChoices {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: rgba(0,0,0,.8);
+	padding: 1em;
+	margin: 0;
+}
+.word, .wordChoices > li {
 	display: inline-block;
 	margin-right: 5px;
 	padding: .1em .25em;
@@ -135,7 +170,7 @@ a {
 	background-color: #444;
 	padding:  .1em .75em;
 }
-.hideWord.active {
+.hideWord.active, .wordChoices > li {
 	background-color: #999;
 }
 .hideWord > .wordText {
@@ -143,4 +178,12 @@ a {
 }
 .filled > .wordText {
 	visibility: visible;
+}
+.overlay {
+	position: fixed;
+	top: 45px;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0,0,0,.8);
 }

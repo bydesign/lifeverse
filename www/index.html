@@ -75,24 +75,34 @@
 			
 			<!-- Type 3: Choose all words from list of words -->
 			<div ng-show="lessonType==3">
-				<div class="verseText">
-					<span class="word" ng-class="{hideWord: word.hidden, filled: word.used, active: word.active}" ng-repeat="word in phrase.words track by $index">
-						<span class="wordText">{{word.text}}</span>
-					</span>
-				</div>
-				<p>Select the correct words in order.</p>
+				<ol class="verses">
+					<li ng-repeat="verse in passage.verses" class="verse" ng-class="{active:verse==activeVerse}" lv-tap="selectVerse(verse)">
+						<div class="verseRef">{{verse.display}}</div>
+						<ol class="phrases">
+							<li class="phrase" ng-repeat="phrase in verse.phrases" ng-class="{active:phrase==activePhrase, complete:phrase.complete}">
+								<div class="phraseStrength">{{phrase.strength}}/{{strengthMax}}</div>
+								<div class="verseText">
+									<span class="word" ng-class="{hideWord: word.hidden, filled: word.used, active: word.active}" ng-repeat="word in phrase.words track by $index">
+										<span class="wordText">{{word.text}}</span>
+									</span>
+								</div>
+							</li>
+						</ol>
+					</li>
+				</ol>
+				
 				<ul class="wordChoices">
-					<li ng-repeat="word in hiddenWords track by $index" lv-tap="chooseWord(word)" ng-class="{used: word.used}">{{word.text}}</li>
+					<li ng-repeat="word in hiddenWordsShuffled track by $index" lv-tap="chooseWord(word)" ng-class="{used: word.used}">{{word.text}}</li>
 				</ul>
+				
+				<div class="overlay" ng-show="canContinue">
+					<h2>Great work!</h2>
+					<p class="reference">{{activeVerse.display}}</p>
+					<p>Strength: {{activeVerse.strength}}/{{strengthMax}}</p>
+					<p><button lv-tap="reviewVerse(activeVerse)">Strengthen {{activeVerse.display}}</button> <button lv-tap="reviewVerse(nextVerse)" ng-show="nextVerse">Next {{nextVerse.display}}</button></p>
+					<p><a href="#Verses">Back to verse list</a></p>
+				</div>
 			</div>
-			
-			<div ng-show="curStep.type.checkable">
-				<!--<h3 ng-show="correct">Correct!</h3>
-				<h3 ng-hide="correct">Sorry, not quite right.</h3>-->
-				<button class="continue" lv-tap="check()" ng-hide="canContinue">Check</button>
-			</div>
-			
-			<button class="continue" lv-tap="continue()" ng-show="canContinue">Continue</button>
 		</div>
 		<div ng-show="hearts<=0">
 			<p>Uh oh, you lost your hearts!</p>
