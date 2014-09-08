@@ -883,7 +883,11 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 			});
 		});
 		$scope.hiddenWords[0].active = true;
-		$scope.hiddenWordsShuffled = $scope.hiddenWords.slice(0);
+		var end = $scope.hiddenWords.length;
+		if (end > 5) end = 5;
+		//$scope.hiddenWordsShuffled = $scope.hiddenWords.slice(0);
+		$scope.hiddenWordsShuffled = $scope.hiddenWords.slice(0, end);
+		$scope.hiddenWordsLeft = $scope.hiddenWords.slice(end);
 		shuffleArray($scope.hiddenWordsShuffled);
 	};
 	
@@ -932,16 +936,15 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 	
 	$scope.chooseWord = function(word) {
 		var nextWord = $scope.hiddenWords[0];
+		var index = $scope.hiddenWordsShuffled.indexOf(word);
 		if (word == nextWord) {
-			var index = $scope.hiddenWordsShuffled.indexOf(word);
 			$scope.hiddenWordsShuffled.splice(index, 1);
 			word.used = true;
 			$scope.nextWord();
 			
 		// handle same-word lookups
 		} else if (word.text == nextWord.text) {
-			var wordIndex = $scope.hiddenWordsShuffled.indexOf(word);
-			$scope.hiddenWordsShuffled.splice(wordIndex, 1);
+			$scope.hiddenWordsShuffled.splice(index, 1);
 			// need to move current word to other word's locations
 			var nextWordIndex = $scope.hiddenWordsShuffled.indexOf(nextWord);
 			$scope.hiddenWordsShuffled.splice(nextWordIndex, 1, word);
@@ -951,6 +954,11 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 		} else {
 			$scope.hearts--;
 			alert('Sorry, try again');
+		}
+		console.log($scope.hiddenWordsLeft.length);
+		if ($scope.hiddenWordsLeft.length > 0) {
+			$scope.hiddenWordsShuffled.splice(index, 0, $scope.hiddenWordsLeft[0]);
+			$scope.hiddenWordsLeft.shift();
 		}
 	};
 	
