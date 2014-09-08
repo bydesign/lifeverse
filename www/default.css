@@ -57,14 +57,14 @@ a {
 }
 .phraseStrength {
 	position: absolute;
-	left: 15px;
+	left: 5px;
 	top: 15px;
 	width: 20px;
 	height: 20px;
 	display: block;
-	font-size: 14px;
+	font-size: 10px;
 	line-height: 24px;
-	color: #999;
+	color: #666;
 }
 .phrase.active {
 	color: #fff;
@@ -109,7 +109,7 @@ a {
 }
 .verseText {
 	display: block;
-	margin-left: 60px;
+	margin-left: 24px;
 }
 .steps > li {
 	list-style: none;
@@ -127,6 +127,13 @@ a {
 .steps > li.rem {
 	opacity: 1;
 	border-radius: 0;
+}
+.reference {
+	text-align: center;
+}
+.hearts {
+	float: right;
+	margin: 0;
 }
 .hearts > li {
 	color: #666;
@@ -181,9 +188,21 @@ a {
 }
 .overlay {
 	position: fixed;
-	top: 45px;
 	left: 0;
 	right: 0;
 	bottom: 0;
 	background-color: rgba(0,0,0,.8);
+	z-index: 1000;
+}
+.fixedHeader {
+	top: 0;
+	bottom: auto;
+	font-size: .6em;
+	padding: .5em;
+}
+.fixedHeader > p {
+	margin: 0;
+}
+.lessonWrap {
+	padding-top: 48px;
 }

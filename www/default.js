@@ -863,11 +863,9 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 			var count = phrase.words.length;
 			var needed = count;	// hide all words
 			if (phrase.strength == 0) {
-				needed = Math.round(count * 0.25);	//hide 1/4 of the words
+				needed = Math.round(count * 0.33);	//hide 1/3 of the words
 			} else if (phrase.strength == 1) {
-				needed = Math.round(count * 0.5);	//hide 1/2 of the words
-			} else if (phrase.strength == 2) {
-				needed = Math.round(count * 0.75);	//hide 3/4 of the words
+				needed = Math.round(count * 0.66);	//hide 2/3 of the words
 			}
 			var wordsUsed = [];
 			angular.forEach(phrase.words, function(word, index) {
@@ -885,7 +883,6 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 		$scope.hiddenWords[0].active = true;
 		var end = $scope.hiddenWords.length;
 		if (end > 5) end = 5;
-		//$scope.hiddenWordsShuffled = $scope.hiddenWords.slice(0);
 		$scope.hiddenWordsShuffled = $scope.hiddenWords.slice(0, end);
 		$scope.hiddenWordsLeft = $scope.hiddenWords.slice(end);
 		shuffleArray($scope.hiddenWordsShuffled);
@@ -955,7 +952,6 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 			$scope.hearts--;
 			alert('Sorry, try again');
 		}
-		console.log($scope.hiddenWordsLeft.length);
 		if ($scope.hiddenWordsLeft.length > 0) {
 			$scope.hiddenWordsShuffled.splice(index, 0, $scope.hiddenWordsLeft[0]);
 			$scope.hiddenWordsLeft.shift();

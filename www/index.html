@@ -42,70 +42,60 @@
 
 <script type="text/ng-template" id="verse_learn.html">
 	<div>
-		<a href="#Verses" class="leftBtn">Exit</a>
+		<div class="overlay fixedHeader">
+			<a href="#Verses" class="leftBtn">Exit</a>
 		
-		<div ng-show="hearts>0">
-			<ul class="steps">
-				<li ng-repeat="step in steps" ng-class="{cur:step==curStep,rem:step.type.number==1}"></li>
-			</ul>
-			
-			<p class="reference">{{passage.display}}</p>
 			<ul class="hearts" ng-hide="curStep.type==1">
 				<li ng-class="{active:hearts>=1}">♥</li>
 				<li ng-class="{active:hearts>=2}">♥</li>
 				<li ng-class="{active:hearts>=3}">♥</li>
 			</ul>
-			
-			<!-- Type 1: Type the first letter of each word in the phrase -->
-			<div ng-show="lessonType==1">
-				<p>Type the phrase below.</p>
-				<textarea ng-model="typedPhrase"></textarea>
-				<p class="tip">Tip: Think about the meaning of the words.</p>
+			<p class="reference">{{passage.display}}</p>
+		</div>
+		
+		<!-- Type 1: Type the first letter of each word in the phrase -->
+		<div ng-show="lessonType==1">
+			<p>Type the phrase below.</p>
+			<textarea ng-model="typedPhrase"></textarea>
+			<p class="tip">Tip: Think about the meaning of the words.</p>
+		</div>
+		
+		<!-- Type 2: Recite the phrase aloud -->
+		<div ng-show="lessonType==2">
+			<p>Recite the phrase aloud.</p>
+			<div>
+				<button lv-tap="curStep.type.listen()">Listen</button><br>
+				<a href="#">I can’t use the microphone right now.</a>
 			</div>
+			<p class="tip">Tip: Think about the meaning of the phrase.</p>
+		</div>
+		
+		<!-- Type 3: Choose all words from list of words -->
+		<div ng-show="lessonType==3" class="lessonWrap">
+			<ol class="verses">
+				<li ng-repeat="verse in passage.verses" class="verse" ng-class="{active:verse==activeVerse}" lv-tap="selectVerse(verse)">
+					<div class="verseRef">{{verse.display}}</div>
+					<ol class="phrases">
+						<li class="phrase" ng-repeat="phrase in verse.phrases" ng-class="{active:phrase==activePhrase, complete:phrase.complete}">
+							<div class="phraseStrength">{{phrase.strength}}/{{strengthMax}}</div>
+							<div class="verseText">
+								<span class="word" ng-class="{hideWord: word.hidden, filled: word.used, active: word.active}" ng-repeat="word in phrase.words track by $index">
+									<span class="wordText">{{word.text}}</span>
+								</span>
+							</div>
+						</li>
+					</ol>
+				</li>
+			</ol>
 			
-			<!-- Type 2: Recite the phrase aloud -->
-			<div ng-show="lessonType==2">
-				<p>Recite the phrase aloud.</p>
-				<div>
-					<button lv-tap="curStep.type.listen()">Listen</button><br>
-					<a href="#">I can’t use the microphone right now.</a>
-				</div>
-				<p class="tip">Tip: Think about the meaning of the phrase.</p>
-			</div>
-			
-			<!-- Type 3: Choose all words from list of words -->
-			<div ng-show="lessonType==3">
-				<ol class="verses">
-					<li ng-repeat="verse in passage.verses" class="verse" ng-class="{active:verse==activeVerse}" lv-tap="selectVerse(verse)">
-						<div class="verseRef">{{verse.display}}</div>
-						<ol class="phrases">
-							<li class="phrase" ng-repeat="phrase in verse.phrases" ng-class="{active:phrase==activePhrase, complete:phrase.complete}">
-								<div class="phraseStrength">{{phrase.strength}}/{{strengthMax}}</div>
-								<div class="verseText">
-									<span class="word" ng-class="{hideWord: word.hidden, filled: word.used, active: word.active}" ng-repeat="word in phrase.words track by $index">
-										<span class="wordText">{{word.text}}</span>
-									</span>
-								</div>
-							</li>
-						</ol>
-					</li>
-				</ol>
-				
-				<ul class="wordChoices">
+			<div class="overlay">
+				<ul class="wordChoices" ng-show="hearts>0">
 					<li ng-repeat="word in hiddenWordsShuffled track by $index" lv-tap="chooseWord(word)" ng-class="{used: word.used}">{{word.text}}</li>
 				</ul>
 				
-				<div class="overlay" ng-show="canContinue">
-					<h2>Great work!</h2>
-					<p class="reference">{{activeVerse.display}}</p>
-					<p>Strength: {{activeVerse.strength}}/{{strengthMax}}</p>
-					<p><button lv-tap="reviewVerse(activeVerse)">Strengthen {{activeVerse.display}}</button> <button lv-tap="reviewVerse(nextVerse)" ng-show="nextVerse">Next {{nextVerse.display}}</button></p>
-					<p><a href="#Verses">Back to verse list</a></p>
-				</div>
+				<p ng-hide="hearts>0">Uh oh, you lost your hearts! <button lv-tap="reviewVerse(activeVerse)">Try again</button></p>
+				
 			</div>
-		</div>
-		<div ng-show="hearts<=0">
-			<p>Uh oh, you lost your hearts!</p>
 		</div>
 	</div>
 </script>
