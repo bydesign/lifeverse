@@ -931,11 +931,23 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 	};
 	
 	$scope.chooseWord = function(word) {
-		if (word == $scope.hiddenWords[0]) {
+		var nextWord = $scope.hiddenWords[0];
+		if (word == nextWord) {
 			var index = $scope.hiddenWordsShuffled.indexOf(word);
 			$scope.hiddenWordsShuffled.splice(index, 1);
 			word.used = true;
 			$scope.nextWord();
+			
+		// handle same-word lookups
+		} else if (word.text == nextWord.text) {
+			var wordIndex = $scope.hiddenWordsShuffled.indexOf(word);
+			$scope.hiddenWordsShuffled.splice(wordIndex, 1);
+			// need to move current word to other word's locations
+			var nextWordIndex = $scope.hiddenWordsShuffled.indexOf(nextWord);
+			$scope.hiddenWordsShuffled.splice(nextWordIndex, 1, word);
+			nextWord.used = true;
+			$scope.nextWord();
+			
 		} else {
 			$scope.hearts--;
 			alert('Sorry, try again');
