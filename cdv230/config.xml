@@ -58,5 +58,8 @@
         <plugin name="UniMagReaderPlugin" value="UniMagReaderPlugin" />
     </plugins>
 
-    <access origin="*" />
+    <access origin="https://bibles.org" />
+    <access origin="https://ajax.googleapis.com" />
+    <access origin="http://fonts.googleapis.com" />
+    <access origin="http://fonts.gstatic.com" />
 </cordova>

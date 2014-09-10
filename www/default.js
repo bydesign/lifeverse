@@ -66,7 +66,7 @@ angular.module('ngView', ['ngRoute','ngResource','LocalStorageModule', 'ui.sorta
 
 })
 .factory('Versions',function($resource){
-    var resource = $resource('http://bibles.org/v2/versions.js', {
+    var resource = $resource('https://bibles.org/v2/versions.js', {
 		get: {
 			method: "GET",
 			/*headers: {
@@ -603,12 +603,25 @@ function AddChaptersCntl($scope, Books, $routeParams) {
 	$scope.chapters = chapters;
 }
 
-function AddVersesCntl($scope, $rootScope, $routeParams, localStorageService, Verses, Books, $location) {
-	console.log('AddVersesCntl');
+function AddVersesCntl($scope, $rootScope, $routeParams, localStorageService, Verses, Books, $location, Versions) {
 	$scope.activeVerses = [];
 	$scope.loading = true;
 	$scope.displayName = '';
 	$scope.chapterName = $routeParams.bookName + ' ' + $routeParams.chapNum;
+	
+	/* this is quite ridiculous. If this ajax call is included the folowing
+	ajax call works. Otherwise it hangs in phonegap.
+	*/
+	$.ajax({
+		url: 'https://bibles.org/v2/versions.js',
+		method: 'OPTIONS',
+		dataType: 'json',
+		complete: function(xhr, status) {
+			console.log(status);
+		},
+		username: 'zJLXRg3SXOgE8QIG1wXXv3Tau809mljWy1vmOtpo',
+		password: 'x'
+	});
 	var data = Verses.get({
 		search: $scope.chapterName,
 		
