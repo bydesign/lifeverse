@@ -6,7 +6,7 @@
 	<meta charset="utf-8">
 	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
 	<link href="http://fonts.googleapis.com/css?family=Lato:300,700" rel="stylesheet" type="text/css">
-	<link href='default.css' rel='stylesheet' type='text/css'>
+	<link href='css/default.css' rel='stylesheet' type='text/css'>
 </head>
 
 <body>
@@ -74,10 +74,9 @@
 		<div ng-show="lessonType==3" class="lessonWrap">
 			<ol class="verses">
 				<li ng-repeat="verse in passage.verses" class="verse" ng-class="{active:verse==activeVerse}" lv-tap="selectVerse(verse)">
-					<div class="verseRef">{{verse.display}}</div>
+					<div class="verseRef"><span class="verseStrength">{{verse.strength}}/{{strengthMax}}</span>{{verse.display}}</div>
 					<ol class="phrases">
 						<li class="phrase" ng-repeat="phrase in verse.phrases" ng-class="{active:phrase==activePhrase, complete:phrase.complete}">
-							<div class="phraseStrength">{{phrase.strength}}/{{strengthMax}}</div>
 							<div class="verseText">
 								<span class="word" ng-class="{hideWord: word.hidden, filled: word.used, active: word.active}" ng-repeat="word in phrase.words track by $index">
 									<span class="wordText">{{word.text}}</span>
@@ -90,7 +89,7 @@
 			
 			<div class="overlay">
 				<ul class="wordChoices" ng-show="hearts>0">
-					<li ng-repeat="word in hiddenWordsShuffled track by $index" lv-tap="chooseWord(word)" ng-class="{used: word.used}">{{word.text}}</li>
+					<li ng-repeat="word in hiddenWordsShuffled track by $index" lv-tap="chooseWord(word)" ng-class="{used: word.used}" ng-style="{width:getWordWidth(word)}"><span class="wordText">{{word.text}}</span></li>
 				</ul>
 				
 				<p ng-hide="hearts>0">Uh oh, you lost your hearts! <button lv-tap="reviewVerse(activeVerse)">Try again</button></p>
@@ -174,31 +173,13 @@
 
 <script type="text/javascript" charset="utf-8" src="data/books.json"></script>
 
-<script type="text/javascript">
-	// Make the console debugger work properly
-	/*console = new Object();
-	console.log = function(log) {
-	  var iframe = document.createElement("IFRAME");
-	  iframe.setAttribute("src", "ios-log:#iOS#" + log);
-	  document.documentElement.appendChild(iframe);
-	  iframe.parentNode.removeChild(iframe);
-	  iframe = null;    
-	}
-	console.debug = console.log;
-	console.info = console.log;
-	console.warn = console.log;
-	console.error = console.log;*/
-</script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.7/angular.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.7/angular-route.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.7/angular-sanitize.min.js"></script>
 <script src="angular/angular-resource.js"></script>
 <script src="angular/localStorageModule.js"></script>
 
-<script type="text/javascript" src="default.js"></script>
-<script type="text/javascript">
-	//app.initialize();
-</script>
+<script type="text/javascript" src="js/default.js"></script>
 
 </body>
 </html>

@@ -14,7 +14,12 @@ angular.module('ngView', ['ngRoute','ngResource','LocalStorageModule'], function
 	    // Allow loading from our assets domain.
 	    'https://bibles.org/v2/**'
 	]);
-
+	
+	document.addEventListener('deviceready', function() {
+		console.log('device ready');
+		
+	}, false);
+	
   // Use x-www-form-urlencoded Content-Type
     $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8';
    
@@ -108,14 +113,6 @@ angular.module('ngView', ['ngRoute','ngResource','LocalStorageModule'], function
   	}
   }
 })
-/*.factory('Ages', function($resource){
-  //return $resource('../data/ages.json', {}, {});
-  return {
-  	query: function() {
-  		return AGES;
-  	}
-  }
-})*/
 /*.factory('cordovaReady', function() {
   return function(fn) {
   
@@ -983,40 +980,6 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 			$scope.reviewVerse(passage.verses[0]);
 		}
 	});
-	
-	// build lesson list for this round
-	/*var stepsPerPhrase = Math.floor(16 / $scope.verse.phrases.length);
-	angular.forEach($scope.verse.phrases, function(phrase) {
-		var types = lessonTypes.slice(0,lessonTypes.length);
-		var phraseParts = phrase.trim()
-						.replace(/[\.,-\/"“#!$%\^&\*;:{}=\-_`~()]/g,"")
-						.split(' ');
-		$scope.steps.push({
-			type: {
-				number: 1,
-				checkable: false,
-				init: function() {
-					$scope.canContinue = true;
-				}
-			},
-			phrase: phrase
-		});
-		for (var i=0; i < stepsPerPhrase; i++) {
-			var index = Math.floor(Math.random() * types.length);
-			var type = types[index];
-			var retPhrase = phrase;
-			if (type.number == 4 || type.number == 5) {
-				retPhrase = shuffleArray(phraseParts.slice(0));
-			}
-			$scope.steps.push({
-				type: type,
-				phrase: retPhrase,
-				phraseParts: phraseParts
-			});
-			types.splice(index, 1);
-		}
-	});
-	$scope.curStep = $scope.steps[curStepNum];*/
 	
 	// check lesson to see if answers are correct
 	$scope.check = function() {

@@ -36,6 +36,7 @@ body {
 }
 a {
 	color: #fff;
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 a:focus, a:active {
 	background-color: rgba(255,255,255,.1);
@@ -96,7 +97,7 @@ a:focus, a:active {
 	margin-bottom: .2em;
 	position: relative;
 }
-.phraseStrength {
+.phraseStrength, .verseStrength {
 	position: absolute;
 	left: 5px;
 	top: 15px;
@@ -106,6 +107,10 @@ a:focus, a:active {
 	font-size: 10px;
 	line-height: 24px;
 	color: #666;
+}
+.verseStrength {
+	position: static;
+	display: inline-block;
 }
 .phrase.active {
 	color: #fff;
@@ -150,7 +155,7 @@ a:focus, a:active {
 }
 .verseText {
 	display: block;
-	margin-left: 24px;
+	margin-left: 12px;
 }
 .steps > li {
 	list-style: none;
@@ -203,8 +208,8 @@ a:focus, a:active {
 	left: 0;
 	right: 0;
 	background-color: rgba(0,0,0,.8);
-	padding: .5em;
 	margin: 0;
+	padding: 0;
 }
 .word, .wordChoices > li {
 	display: inline-block;
@@ -212,10 +217,18 @@ a:focus, a:active {
 	padding: .1em .25em;
 }
 .wordChoices > li {
-	padding: .5em .4em;
+	padding: 2px;
     text-align: center;
     min-width: 44px;
     margin-bottom: 5px;
+    box-sizing: border-box;
+    margin-right: 0;
+    width: 20%;
+}
+.wordChoices .wordText {
+	display: inline-block;
+	padding: .1em .25em;
+	background-color: #999;
 }
 .tip {
 	font-size: .5em;
@@ -224,7 +237,7 @@ a:focus, a:active {
 	background-color: #444;
 	padding:  .1em .75em;
 }
-.hideWord.active, .wordChoices > li {
+.hideWord.active {
 	background-color: #999;
 }
 .hideWord > .wordText {
