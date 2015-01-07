@@ -75,25 +75,35 @@
 			<ol class="verses">
 				<li ng-repeat="verse in passage.verses" class="verse" ng-class="{active:verse==activeVerse}" lv-tap="selectVerse(verse)">
 					<div class="verseRef"><span class="verseStrength">{{verse.strength}}/{{strengthMax}}</span>{{verse.display}}</div>
-					<ol class="phrases">
-						<li class="phrase" ng-repeat="phrase in verse.phrases" ng-class="{active:phrase==activePhrase, complete:phrase.complete}">
+					<div class="phrases">
+						<span class="word" ng-class="{hideWord: word.hidden, filled: word.used, active: word.active}" ng-repeat="word in verse.parts track by $index"><span class="wordText">{{word.text}}</span></span>
+					</div>
+						
+						<!--<li class="phrase" ng-repeat="phrase in verse.phrases" ng-class="{active:phrase==activePhrase, complete:phrase.complete}">
 							<div class="verseText">
 								<span class="word" ng-class="{hideWord: word.hidden, filled: word.used, active: word.active}" ng-repeat="word in phrase.words track by $index">
 									<span class="wordText">{{word.text}}</span>
 								</span>
 							</div>
 						</li>
-					</ol>
+					</div>-->
 				</li>
 			</ol>
 			
 			<div class="overlay">
 				<ul class="wordChoices" ng-show="hearts>0">
-					<li ng-repeat="word in hiddenWordsShuffled track by $index" lv-tap="chooseWord(word)" ng-class="{used: word.used}" ng-style="{width:getWordWidth(word)}"><span class="wordText">{{word.text}}</span></li>
+					<li lv-tap="chooseWord(i)" class="word-switch-container wordChoice"
+					      ng-repeat="i in wordIndices"><span class="wordText animate-switch" ng-class="{active:hiddenWordsShuffled[i].text}">{{hiddenWordsShuffled[i].text}}</span></li>
+					<!--<li ng-repeat="word in hiddenWordsShuffled track by $index" lv-tap="chooseWord(word)" ng-class="{used: word.used}" ng-style="{width:getWordWidth(word)}"><span class="wordText">{{word.text}}</span></li>-->
 				</ul>
 				
 				<p ng-hide="hearts>0">Uh oh, you lost your hearts! <button lv-tap="reviewVerse(activeVerse)">Try again</button></p>
 				
+			</div>
+			
+			<div class="overlay alert">
+				<div class="msg">YAY!</div>
+				<div class="verseProgress">1/3</div>
 			</div>
 		</div>
 	</div>
@@ -176,6 +186,8 @@
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.7/angular.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.7/angular-route.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.7/angular-sanitize.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.0-rc.5/angular-animate.js"></script>
+  
 <script src="angular/angular-resource.js"></script>
 <script src="angular/localStorageModule.js"></script>
 

@@ -394,6 +394,7 @@ Verse = function(text, number, passageDisplay) {
 	this.text = text;
 	this.strength = 0;
 	this.phrases = this.parsePhrases(this.text);
+	this.parts = this.parseWords(this.text);
 };
 Verse.prototype = {
 	getLevel: function() {
@@ -405,6 +406,55 @@ Verse.prototype = {
 			return 1 / daysSince;
 		}
 	},
+	
+	parseWords: function(text) {
+		var SPACE = 0,
+			WORD = 1,
+			PUNCTUATION = 2;
+		var parts = [];
+		var curPart = {
+			text: ''
+		};
+		
+		for (var i=0, len=text.length; i<len; i++) {
+			var char = text[i];
+			
+			if (char.match(/[-'’a-zA-Z]/)) {
+				if (curPart.type != undefined && curPart.type != WORD) {
+					parts.push(curPart);
+					curPart = {
+						text: ''
+					};
+				}
+				curPart.text += char;
+				curPart.type = WORD;
+				
+			} else if (char.match(/[\s]/)) {
+				if (curPart.type != undefined && curPart.type != SPACE) {
+					parts.push(curPart);
+					curPart = {
+						text: ''
+					};
+				}
+				curPart.text += char;
+				curPart.type = SPACE;
+				
+			} else {
+				if (curPart.type != undefined && curPart.type != PUNCTUATION) {
+					parts.push(curPart);
+					curPart = {
+						text: ''
+					};
+				}
+				curPart.text += char;
+				curPart.type = PUNCTUATION;
+				
+			}
+		}
+		
+		return parts;
+	},
+	
 	parsePhrases: function(text) {
 		text = text.trim();
 		var bestSplitPos = 0,
@@ -716,6 +766,8 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 	console.log('VerseLearnCntl');
 	var that = this;
 	
+	$scope.wordIndices = [0,1,2,3,4,5];
+	
 	$scope.strengthMax = 3;
 	$scope.heartsMax = 3;
 	$scope.hearts = 3;
@@ -840,71 +892,96 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 		}
 	};
 	
+	this.showAllWords = function() {
+		angular.forEach($scope.activeVerse.parts, function(word) {
+			word.used = false;
+		});
+		/*angular.forEach($scope.activeVerse.phrases, function(phrase) {
+			angular.forEach(phrase.words, function(word) {
+				word.used = false;
+			});
+		});*/
+	};
+	
+	this.hideRandomWords = function() {
+		angular.forEach($scope.activeVerse.parts, function(word) {
+			word.used = false;
+		});
+		$scope.hiddenWords = [];
+		var verse = $scope.activeVerse;
+		
+		var words = [];
+		angular.forEach(verse.parts, function(word, index) {
+			if (word.type == 1) {	// word type
+				words.push(word);
+			}
+		});
+		
+		var count = words.length;
+		var needed = count;	// hide all words
+		if (verse.strength == 0) {
+			needed = Math.round(count * 0.33);	//hide 1/3 of the words
+		} else if (verse.strength == 1) {
+			needed = Math.round(count * 0.66);	//hide 2/3 of the words
+		}
+		var wordsUsed = [];
+		
+		angular.forEach(words, function(word, index) {
+			var probability = needed / (count-index);
+			if (Math.random() <= probability && wordsUsed.indexOf(word.text) == -1) {
+				$scope.hiddenWords.push(word);
+				wordsUsed.push(word.text);
+				word.hidden = true;
+				needed--;
+			} else {
+				word.hidden = false;
+			}
+		});
+		
+		$scope.hiddenWords[0].active = true;
+		var end = $scope.hiddenWords.length;
+		if (end > 6) end = 6;
+		$scope.hiddenWordsShuffled = $scope.hiddenWords.slice(0, end);
+		$scope.hiddenWordsLeft = [];
+		if ($scope.hiddenWords.length > 6) {
+			$scope.hiddenWordsLeft = $scope.hiddenWords.slice(end);
+		}
+		shuffleArray($scope.hiddenWordsShuffled);
+		//shuffleArray($scope.hiddenWordsLeft);	// not sure if this is needed yet, could cause problems with long verses
+	};
+	
 	$scope.reviewVerse = function(verse) {
 		// hide dialog
 		$scope.canContinue = false;
 		$scope.activeVerse = verse;
 		$scope.hearts = 3;
-		that.showAllWords();
+		//that.showAllWords();
 		that.hideRandomWords();
-		$scope.reviewPhrase(0);
+		//$scope.reviewPhrase(0);
 		var verseIndex = $scope.passage.verses.indexOf(verse);
 		if ($scope.passage.verses[verseIndex+1] != undefined) {
 			$scope.nextVerse = $scope.passage.verses[verseIndex+1];
 		}
-	};
-	
-	this.showAllWords = function() {
-		angular.forEach($scope.activeVerse.phrases, function(phrase) {
-			angular.forEach(phrase.words, function(word) {
-				word.used = false;
-			});
-		});
-	};
-	
-	this.hideRandomWords = function() {
-		$scope.hiddenWords = [];
-		angular.forEach($scope.activeVerse.phrases, function(phrase) {
-			var count = phrase.words.length;
-			var needed = count;	// hide all words
-			if (phrase.strength == 0) {
-				needed = Math.round(count * 0.33);	//hide 1/3 of the words
-			} else if (phrase.strength == 1) {
-				needed = Math.round(count * 0.66);	//hide 2/3 of the words
-			}
-			var wordsUsed = [];
-			angular.forEach(phrase.words, function(word, index) {
-				var probability = needed / (count-index);
-				if (Math.random() <= probability && wordsUsed.indexOf(word.text) == -1) {
-					$scope.hiddenWords.push(word);
-					wordsUsed.push(word.text);
-					word.hidden = true;
-					needed--;
-				} else {
-					word.hidden = false;
-				}
-			});
-		});
-		$scope.hiddenWords[0].active = true;
-		var end = $scope.hiddenWords.length;
-		if (end > 5) end = 5;
-		$scope.hiddenWordsShuffled = $scope.hiddenWords.slice(0, end);
-		$scope.hiddenWordsLeft = $scope.hiddenWords.slice(end);
-		shuffleArray($scope.hiddenWordsShuffled);
+		var $activeVerse = $('.verseRef:eq('+verseIndex+')');
+		if ($activeVerse.length != 0) {
+			$('body').animate({
+				scrollTop: $activeVerse.offset().top - 40
+			}, 1500);
+		}
 	};
 	
 	// define missing words
 	$scope.reviewPhrase = function(index) {
 		// complete active phrase
-		if (index > 0) {
-			$scope.activePhrase.complete = true;
-			if ($scope.activePhrase.strength < $scope.strengthMax) {
-				$scope.activePhrase.strength++;
+		/*if (index > 0) {
+			$scope.activeVerse.complete = true;
+			if ($scope.activeVerse.strength < $scope.strengthMax) {
+				$scope.activeVerse.strength++;
 			}
-		}
+		}*/
 			
 		// check if done with this verse
-		if (index >= $scope.activeVerse.phrases.length) {
+		//if (index >= $scope.activeVerse.phrases.length) {
 			//$scope.canContinue = true;
 			if ($scope.activeVerse.strength < $scope.strengthMax) {
 				$scope.activeVerse.strength++;
@@ -913,21 +990,21 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 			if ($scope.activeVerse.strength < $scope.strengthMax) {
 				$scope.reviewVerse($scope.activeVerse);
 			} else {
-				that.phraseIndex = 0;
-				$scope.activePhrase = undefined;
+				//that.phraseIndex = 0;
+				//$scope.activePhrase = undefined;
 				$scope.reviewVerse($scope.nextVerse);
 			}
 		
 		// next part of active verse
-		} else {
+		/*} else {
 			that.phraseIndex = index;
 			$scope.activePhrase = $scope.activeVerse.phrases[index];
-		}
+		}*/
 	};
 	
-	this.phraseComplete = function() {
+	this.verseComplete = function() {
 		var complete = true;
-		angular.forEach($scope.activePhrase.words, function(word) {
+		angular.forEach($scope.activeVerse.parts, function(word) {
 			if (word.hidden && !word.used) {
 				complete = false;
 			}
@@ -936,48 +1013,42 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 		return complete;
 	};
 	
-	$scope.chooseWord = function(word) {
-		var nextWord = $scope.hiddenWords[0];
-		var index = $scope.hiddenWordsShuffled.indexOf(word);
-		if (word == nextWord) {
-			$scope.hiddenWordsShuffled.splice(index, 1);
-			word.used = true;
-			$scope.nextWord();
-			
-		// handle same-word lookups
-		} else if (word.text == nextWord.text) {
-			$scope.hiddenWordsShuffled.splice(index, 1);
-			// need to move current word to other word's locations
-			var nextWordIndex = $scope.hiddenWordsShuffled.indexOf(nextWord);
-			$scope.hiddenWordsShuffled.splice(nextWordIndex, 1, word);
-			nextWord.used = true;
-			$scope.nextWord();
-			
-		} else {
-			$scope.hearts--;
-			alert('Sorry, try again');
-		}
-		if ($scope.hiddenWordsLeft.length > 0) {
-			$scope.hiddenWordsShuffled.splice(index, 0, $scope.hiddenWordsLeft[0]);
-			$scope.hiddenWordsLeft.shift();
-		}
-	};
-	
-	$scope.getWordWidth = function(word) {
-		var count = 0;
-		angular.forEach($scope.hiddenWordsShuffled, function(word) {
-			count += word.text.length;
-		});
-		return word.text.length/count * 100 - 1 + '%';
-	};
-	
-	$scope.nextWord = function() {
-		$scope.hiddenWords[0].active = false;
-		$scope.hiddenWords.shift();
-		if (that.phraseComplete()) {
-			$scope.reviewPhrase(that.phraseIndex+1);
-		} else {
-			$scope.hiddenWords[0].active = true;
+	$scope.chooseWord = function(index) {
+		var word = $scope.hiddenWordsShuffled[index];
+		if (word != undefined) {
+			var nextWord = $scope.hiddenWords[0];
+			if (word.text == nextWord.text) {
+				nextWord.used = true;
+				
+				if (word != nextWord) { // handle same-word lookups by swapping words
+					var nextWordIndex = $scope.hiddenWordsShuffled.indexOf(nextWord);
+					$scope.hiddenWordsShuffled[index] = $scope.hiddenWordsShuffled[nextWordIndex];
+					$scope.hiddenWordsShuffled[nextWordIndex] = word;
+				}
+				
+				$scope.hiddenWords[0].active = false;
+				$scope.hiddenWords.shift();
+				if (that.verseComplete()) {
+					var phraseIndex = that.phraseIndex + 1;
+					setTimeout(function() {
+						$scope.reviewPhrase(phraseIndex);
+						$scope.$apply();
+					}, 500);
+					return;
+				} else {
+					$scope.hiddenWords[0].active = true;
+				}
+				var replaceWord = {};
+				if ($scope.hiddenWordsLeft.length > 0) {
+					replaceWord = $scope.hiddenWordsLeft[0];
+					$scope.hiddenWordsLeft.shift();
+				}
+				$scope.hiddenWordsShuffled.splice(index, 1, replaceWord);
+				
+			} else {
+				$scope.hearts--;
+				alert('Sorry, try again');
+			}
 		}
 	};
 	

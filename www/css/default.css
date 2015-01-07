@@ -90,12 +90,14 @@ a:focus, a:active {
 .verses, .phrases {
 	list-style: none;
 	padding: 0;
+	line-height: 2.3em;
 }
 .phrase {
 	color: #999;
 	line-height: 1.4em;
 	margin-bottom: .2em;
 	position: relative;
+	display: inline;
 }
 .phraseStrength, .verseStrength {
 	position: absolute;
@@ -154,7 +156,7 @@ a:focus, a:active {
 	background-color: #444;
 }
 .verseText {
-	display: block;
+	display: inline;
 	margin-left: 12px;
 }
 .steps > li {
@@ -202,33 +204,12 @@ a:focus, a:active {
 	margin-bottom: .5em;
 	padding: .25em;
 }
-.wordChoices {
-	position: fixed;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	background-color: rgba(0,0,0,.8);
-	margin: 0;
-	padding: 0;
-}
-.word, .wordChoices > li {
+.word {
 	display: inline-block;
 	margin-right: 5px;
 	padding: .1em .25em;
-}
-.wordChoices > li {
-	padding: 2px;
-    text-align: center;
-    min-width: 44px;
-    margin-bottom: 5px;
-    box-sizing: border-box;
-    margin-right: 0;
-    width: 20%;
-}
-.wordChoices .wordText {
-	display: inline-block;
-	padding: .1em .25em;
-	background-color: #999;
+	overflow: hidden;
+	-webkit-transition: all .3s ease-in-out 0s;
 }
 .tip {
 	font-size: .5em;
@@ -240,11 +221,15 @@ a:focus, a:active {
 .hideWord.active {
 	background-color: #999;
 }
+.word > .wordText {
+	-webkit-transition: all .3s ease-in-out 0s;
+	position: relative;
+}
 .hideWord > .wordText {
-	visibility: hidden;
+	top: 100px;
 }
 .filled > .wordText {
-	visibility: visible;
+	top: 0;
 }
 .overlay {
 	position: fixed;
@@ -253,6 +238,31 @@ a:focus, a:active {
 	bottom: 0;
 	background-color: rgba(0,0,0,.8);
 	z-index: 1000;
+}
+.alert {
+	z-index: 1100;
+	background-color: #fff;
+	color: #444;
+	border-radius: 100%;
+	width: 66%;
+	height: 0;
+	padding-top: 66%;
+	margin-left: -33%;
+	margin-top: -50%;
+	text-align: center;
+	left: 50%;
+	top: 50%;
+	display: none;
+}
+.alert > .msg, .alert > .verseProgress {
+	position: absolute;
+	top: 20%;
+	left:0;
+	width: 100%;
+}
+.alert > .verseProgress {
+	font-size: 4em;
+	top: 30%;
 }
 .fixedHeader {
 	top: 0;
@@ -266,3 +276,65 @@ a:focus, a:active {
 .lessonWrap {
 	padding-top: 48px;
 }
+
+.wordChoices {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: rgba(0,0,0,.8);
+	margin: 0;
+	padding: 4px 3px 0;
+}
+.word-switch-container {
+	padding: 0;
+	margin: 0;
+	overflow:hidden;
+	display: inline-block;
+	position: relative;
+    text-align: center;
+    width: 33.332%;
+    height: 44px;
+}
+.wordChoice > .wordText {
+	position: absolute;
+	top: 1px;
+	right: 3px;
+	bottom: 1px;
+	left: 3px;
+	text-align: center;
+	line-height: 42px;
+	padding: 0;
+	background-color: rgba(255,255,255,.1);
+	-webkit-transition: all .3s ease-in-out 0s;
+}
+.wordChoices .wordText.active {
+	background-color: rgba(255,255,255,.5);
+}
+
+.animate-switch {
+	padding:10px;
+}
+
+.animate-switch.ng-animate {
+	-webkit-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+	transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+
+	position:absolute;
+	top:0;
+	left:0;
+	right:0;
+	bottom:0;
+}
+
+.animate-switch.ng-leave.ng-leave-active {
+	top:-50px;
+}
+.animate-switch.ng-leave,
+.animate-switch.ng-enter.ng-enter-active {
+	top:0;
+}
+.animate-switch.ng-enter {
+	top:50px;
+}
+
