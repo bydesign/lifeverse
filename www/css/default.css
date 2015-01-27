@@ -68,6 +68,9 @@ a:focus, a:active {
 	text-decoration: none;
 	border-top: solid 1px rgba(255,255,255,.2);
 }
+.passageList .verseStrength {
+	float: right;
+}
 .sectionName {
 	margin: 0;
 	padding: .5em 1.4em;
@@ -275,6 +278,7 @@ a:focus, a:active {
 }
 .lessonWrap {
 	padding-top: 48px;
+	padding-bottom: 100px;
 }
 
 .wordChoices {

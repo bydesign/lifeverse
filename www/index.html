@@ -35,7 +35,9 @@
 	<div>
 		<a href="#Add" class="addPassage">Add passage</a>
 		<ul class="passageList">
-			<li ng-repeat="passage in passages"><a href="#Verses/{{passage.id}}">{{passage.display}}</li>
+			<li ng-repeat="passage in passages"><a href="#Verses/{{passage.id}}">{{passage.display}}
+				<span class="verseStrength">{{passage.strength}}/{{strengthMax}}</span>
+			</li>
 		</ul>
 	</div>
 </script>
@@ -76,17 +78,10 @@
 				<li ng-repeat="verse in passage.verses" class="verse" ng-class="{active:verse==activeVerse}" lv-tap="selectVerse(verse)">
 					<div class="verseRef"><span class="verseStrength">{{verse.strength}}/{{strengthMax}}</span>{{verse.display}}</div>
 					<div class="phrases">
-						<span class="word" ng-class="{hideWord: word.hidden, filled: word.used, active: word.active}" ng-repeat="word in verse.parts track by $index"><span class="wordText">{{word.text}}</span></span>
+						<span class="word" ng-class="{hideWord: word.hidden, filled: word.used, active: word.active}" ng-repeat="word in verse.parts track by $index">
+							<span class="wordText">{{word.text}}</span>
+						</span>
 					</div>
-						
-						<!--<li class="phrase" ng-repeat="phrase in verse.phrases" ng-class="{active:phrase==activePhrase, complete:phrase.complete}">
-							<div class="verseText">
-								<span class="word" ng-class="{hideWord: word.hidden, filled: word.used, active: word.active}" ng-repeat="word in phrase.words track by $index">
-									<span class="wordText">{{word.text}}</span>
-								</span>
-							</div>
-						</li>
-					</div>-->
 				</li>
 			</ol>
 			

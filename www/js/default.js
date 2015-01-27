@@ -348,7 +348,7 @@ Category.prototype = {
 
 Passage = function(obj, id) {	// assumes json passage object from bibles.org api
 	this.copyright = obj.copyright,
-    this.text = obj.text,
+    //this.text = obj.text,
     this.end_verse_id = obj.end_verse_id,
     this.version = obj.version,
     this.path = obj.path,
@@ -357,9 +357,16 @@ Passage = function(obj, id) {	// assumes json passage object from bibles.org api
     this.display = obj.display;
     this.id = id;
     this.strength = 0;
+    this.lastStrength = 0;
+    this.lastReviewed;
     
     this.verses = [];
-    this.parseText(this.text);
+    if (obj.verses != undefined) {
+    	this.verses = obj.verses;
+    }
+    if (obj.text != undefined) {
+    	this.parseText(obj.text);
+    }
 };
 Passage.prototype = {
 	name: function() {
@@ -393,6 +400,8 @@ Verse = function(text, number, passageDisplay) {
 	this.number = number;
 	this.text = text;
 	this.strength = 0;
+	this.lastStrength = 0;
+	this.lastReviewed;
 	this.phrases = this.parsePhrases(this.text);
 	this.parts = this.parseWords(this.text);
 };
@@ -651,7 +660,7 @@ function AddVersesCntl($scope, $rootScope, $routeParams, localStorageService, Ve
 	$scope.displayName = '';
 	$scope.chapterName = $routeParams.bookName + ' ' + $routeParams.chapNum;
 	
-	/* this is quite ridiculous. If this ajax call is included the folowing
+	/* this is quite ridiculous. If this ajax call is included the following
 	ajax call works. Otherwise it hangs in phonegap.
 	*/
 	$.ajax({
@@ -668,6 +677,7 @@ function AddVersesCntl($scope, $rootScope, $routeParams, localStorageService, Ve
 		search: $scope.chapterName,
 		
 	}, function() {
+		console.log('AJAX verses loaded');
 		var passageData = data.response.search.result.passages[0];
 		$scope.passage = new Passage(passageData);
 		$scope.loading = false;
@@ -710,51 +720,25 @@ function AddVersesCntl($scope, $rootScope, $routeParams, localStorageService, Ve
 			$scope.displayName = '';
 		}
 		
-		/****** TEST TO MAKE MULTIPLE SELECTION EASIER *****
-		if ($scope.activeVerses.length == 1) {
-			var activeVerse = $scope.activeVerses[0];
-			if (verse.number == activeVerse.number) {
-				$scope.activeVerses = [];
-				verse.active = false;
-			} else {
-				var start, end;
-				if (activeVerse.number < verse.number) {
-					start = activeVerse.number - 1;
-					end = verse.number;
-				} else {
-					start = verse.number - 1;
-					end = activeVerse.number;
-				}
-				$scope.activeVerses = verses.slice(start, end);
-			}
-			angular.forEach($scope.activeVerses, function(verse) {
-				verse.active = true;
-			});
-			
-		} else {
-			angular.forEach(verses, function(verse) {
-				verse.active = false;
-			});
-			verse.active = true;
-			$scope.activeVerses = [verse];
-		}*/
-		
 	};
 	
 	var that = this;
 	$scope.addPassage = function() {
+		$scope.passage.text = undefined;	// don't need to store the whole chapter
 		var passage = $scope.passage;
 		passage.verses = $scope.activeVerses;
 		passage.display = $scope.displayName;
 		passage.id = $rootScope.passages.length;
-		//console.log(passage);
 		$rootScope.passages.push(passage);
-		
-		var flat_passages = JSON.stringify($rootScope.passages)
-		localStorageService.add('passages', flat_passages);
+		savePassages();
 		
 		$location.path('Verses/'+passage.id);
 	};
+	
+	function savePassages() {
+		var flat_passages = JSON.stringify($rootScope.passages);
+		localStorageService.add('passages', flat_passages);
+	}
 	
 }
 
@@ -762,7 +746,7 @@ function ReviewCntl($scope) {
 	console.log('ReviewCntl');
 }
 
-function VerseLearnCntl($scope, $rootScope, $routeParams) {
+function VerseLearnCntl($scope, $rootScope, $routeParams, localStorageService) {
 	console.log('VerseLearnCntl');
 	var that = this;
 	
@@ -773,59 +757,8 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 	$scope.hearts = 3;
 	$scope.canContinue = false;
 	$scope.lessonType = 3;
-	//$scope.steps = [];
 	
-	//var curStepNum = 0;
 	var lessonTypes = [
-		// listen to the phrase
-		// currently disabled
-		/*{
-			number: 4,
-			init: function() {
-				console.log('init');
-				$scope.listenCount = 0;
-				$scope.canContinue = false;
-			},
-			playAudio: function() {
-				console.log('audio');
-				var msg = new SpeechSynthesisUtterance()
-				msg.text = $scope.curStep.phrase;
-				msg.onstart = function(event) {
-					$scope.playing = true;
-				};
-				msg.onend = function(event) {
-					$scope.playing = false;
-					$scope.listenCount++;
-					if ($scope.listenCount >= 3) {
-						$scope.canContinue = true;
-					}
-					$scope.$apply();
-				};
-				window.speechSynthesis.speak(msg);
-			},
-			checkable: false,
-		},*/
-		
-		// put words in correct order
-		// currently disabled
-		/*{
-			number: 4,
-			init: function() {
-				console.log('init');
-				$scope.canContinue = false;
-			},
-			checkable: true,
-			check: function() {
-				console.log('check');
-				if ($scope.curStep.phrase.equals($scope.curStep.phraseParts)) {
-					$scope.correct = true;
-				} else {
-					$scope.correct = false;
-					$scope.hearts--;
-				}
-				$scope.canContinue = true;
-			},
-		},*/
 		
 		// type first letter of each word in the phrase
 		{
@@ -886,21 +819,15 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 		}
 	];
 	
+	function savePassages() {
+		var flat_passages = JSON.stringify($rootScope.passages)
+		localStorageService.add('passages', flat_passages);
+	}
+	
 	$scope.selectVerse = function(verse) {
 		if (verse != $scope.activeVerse) {
 			$scope.reviewVerse(verse);
 		}
-	};
-	
-	this.showAllWords = function() {
-		angular.forEach($scope.activeVerse.parts, function(word) {
-			word.used = false;
-		});
-		/*angular.forEach($scope.activeVerse.phrases, function(phrase) {
-			angular.forEach(phrase.words, function(word) {
-				word.used = false;
-			});
-		});*/
 	};
 	
 	this.hideRandomWords = function() {
@@ -955,9 +882,7 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 		$scope.canContinue = false;
 		$scope.activeVerse = verse;
 		$scope.hearts = 3;
-		//that.showAllWords();
 		that.hideRandomWords();
-		//$scope.reviewPhrase(0);
 		var verseIndex = $scope.passage.verses.indexOf(verse);
 		if ($scope.passage.verses[verseIndex+1] != undefined) {
 			$scope.nextVerse = $scope.passage.verses[verseIndex+1];
@@ -970,37 +895,13 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 		}
 	};
 	
-	// define missing words
-	$scope.reviewPhrase = function(index) {
-		// complete active phrase
-		/*if (index > 0) {
-			$scope.activeVerse.complete = true;
-			if ($scope.activeVerse.strength < $scope.strengthMax) {
-				$scope.activeVerse.strength++;
-			}
-		}*/
-			
-		// check if done with this verse
-		//if (index >= $scope.activeVerse.phrases.length) {
-			//$scope.canContinue = true;
-			if ($scope.activeVerse.strength < $scope.strengthMax) {
-				$scope.activeVerse.strength++;
-			}
-			// reset starting values
-			if ($scope.activeVerse.strength < $scope.strengthMax) {
-				$scope.reviewVerse($scope.activeVerse);
-			} else {
-				//that.phraseIndex = 0;
-				//$scope.activePhrase = undefined;
-				$scope.reviewVerse($scope.nextVerse);
-			}
-		
-		// next part of active verse
-		/*} else {
-			that.phraseIndex = index;
-			$scope.activePhrase = $scope.activeVerse.phrases[index];
-		}*/
-	};
+	// get selected passage
+	angular.forEach($rootScope.passages, function(passage) {
+		if (passage.id == $routeParams.passageId) {
+			$scope.passage = passage;
+			$scope.reviewVerse(passage.verses[0]);
+		}
+	});
 	
 	this.verseComplete = function() {
 		var complete = true;
@@ -1012,6 +913,18 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 		
 		return complete;
 	};
+	
+	function updatePassageStrength() {
+		var verses = $scope.passage.verses;
+		var verseCount = verses.length;
+		var total = 0;
+		angular.forEach($scope.passage.verses, function(verse) {
+			total += verse.strength;
+			console.log(verse.strength);
+		});
+		$scope.passage.strength = Math.round(total / verseCount);
+		console.log($scope.passage.strength);
+	}
 	
 	$scope.chooseWord = function(index) {
 		var word = $scope.hiddenWordsShuffled[index];
@@ -1029,12 +942,25 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 				$scope.hiddenWords[0].active = false;
 				$scope.hiddenWords.shift();
 				if (that.verseComplete()) {
-					var phraseIndex = that.phraseIndex + 1;
+					// delay to make time for animation
 					setTimeout(function() {
-						$scope.reviewPhrase(phraseIndex);
+						// check if done with this verse
+						if ($scope.activeVerse.strength < $scope.strengthMax) {
+							$scope.activeVerse.strength++;
+							updatePassageStrength();
+							savePassages();
+						}
+						// reset starting values
+						if ($scope.activeVerse.strength < $scope.strengthMax) {
+							$scope.reviewVerse($scope.activeVerse);
+						} else {
+							$scope.reviewVerse($scope.nextVerse);
+						}
 						$scope.$apply();
 					}, 500);
+					
 					return;
+					
 				} else {
 					$scope.hiddenWords[0].active = true;
 				}
@@ -1051,14 +977,6 @@ function VerseLearnCntl($scope, $rootScope, $routeParams) {
 			}
 		}
 	};
-	
-	// get selected passage
-	angular.forEach($rootScope.passages, function(passage) {
-		if (passage.id == $routeParams.passageId) {
-			$scope.passage = passage;
-			$scope.reviewVerse(passage.verses[0]);
-		}
-	});
 	
 	// check lesson to see if answers are correct
 	$scope.check = function() {
@@ -1088,7 +1006,6 @@ function MainCntl($scope, $rootScope, $route, $routeParams, $location, $http, Ve
 	$scope.hasPrefs = false;
 	$scope.selectedLanguage = localStorageService.get('language');
 	$scope.selectedVersion = localStorageService.get('version');
-	console.log($scope.selectedVersion);
 	if ($scope.selectedLanguage != null && $scope.selectedVersion != null) {
 		$scope.hasPrefs = true;
 	}
@@ -1120,6 +1037,8 @@ function MainCntl($scope, $rootScope, $route, $routeParams, $location, $http, Ve
 	this.xp = 0,
 	this.verseCount = 0,
 	this.streak = 0;
+	$scope.strengthMax = 3;
+	
 	this.level = function() {
 		return Math.floor(xp / 100)+1;
 	};
