@@ -5,7 +5,7 @@ Date.prototype.apidate = function() {
    return yyyy + '-' + (mm[1]?mm:"0"+mm[0]) + '-' + (dd[1]?dd:"0"+dd[0]); // padding
 };
 
-angular.module('ngView', ['ngRoute','ngResource','LocalStorageModule'], function($routeProvider, $locationProvider, $httpProvider, $sceDelegateProvider) {
+angular.module('ngView', ['ngRoute','ngResource','ngTouch','LocalStorageModule'], function($routeProvider, $locationProvider, $httpProvider, $sceDelegateProvider) {
 	
 	// mark content from bibles.org as safe
 	$sceDelegateProvider.resourceUrlWhitelist([
@@ -50,6 +50,10 @@ angular.module('ngView', ['ngRoute','ngResource','LocalStorageModule'], function
 		controller: AddChaptersCntl
 	})
 	.when('/Add/:bookName/:chapNum', {
+		templateUrl: 'add_verses.html',
+		controller: AddVersesCntl
+	})
+	.when('/Add/:bookName/:chapNum/:passageId', {
 		templateUrl: 'add_verses.html',
 		controller: AddVersesCntl
 	})
@@ -113,6 +117,34 @@ angular.module('ngView', ['ngRoute','ngResource','LocalStorageModule'], function
   	}
   }
 })
+.factory('PassageStorage', function($rootScope, localStorageService) {
+	var store = {
+		save: function() {
+			var flat_passages = JSON.stringify($rootScope.passages);
+			localStorageService.add('passages', flat_passages);
+		},
+		
+		get: function(Passage) {
+			var passagestr = localStorageService.get('passages');
+			if (passagestr != null) {
+				return store.parseObjects(passagestr, Passage);
+			}
+			return [];
+		},
+		
+		parseObjects: function(jsonstr, Passage) {
+			var newObjs = [];
+			var objs = JSON.parse(jsonstr);
+			angular.forEach(objs, function(obj, i) {
+				var passage = new Passage(obj);
+				passage.id = i;
+				newObjs.push(passage);
+			});
+			return newObjs;
+		}
+	};
+	return store;
+})
 /*.factory('cordovaReady', function() {
   return function(fn) {
   
@@ -158,144 +190,6 @@ angular.module('ngView', ['ngRoute','ngResource','LocalStorageModule'], function
     
   };
 });
-
-MONTHS = [
-	'Jan.',
-	'Feb.',
-	'Mar.',
-	'April',
-	'May',
-	'June',
-	'July',
-	'Aug.',
-	'Sept.',
-	'Oct.',
-	'Nov.',
-	'Dec.',
-];
-
-var PHRASE_LENGTH = 7,	// ideal phrase length
-	RANK_FALLOFF = 4,	// how many characters it takes for the rank boost to falloff
-	MIN_LENGTH = 3,		// minimum phrase length
-	MAX_LENGTH = 11,	// maximum phrase length
-	POSITION_WEIGHT = 0.3;	// max amount position can boost rank
-	
-var CONJ_BOOST = 0.4,	// uses word list from CONJ1
-	CONJ2_BOOST = 0.2,	// uses word list from CONJ2
-	PUNC_BOOST = 0.5,	// uses punctuation from PUNC_REGEX
-	PUNC2_BOOST = 1.0;	// uses punctuation from PUNC2_REGEX
-	
-var PUNC_REGEX = /[,:“”‘’()]/;
-var PUNC2_REGEX = /[\.?!;]/;
-
-var CONJ1 = [
-	// coordinating conjunctions
-	'and',
-	'but',
-	'or',
-	'yet',
-	'nor',
-	'so',
-	'that',
-];
-
-var CONJ2 = [
-	// subordinating conjunctions
-	'after',
-	'although',
-	'as',
-	'for',
-	'because',
-	'before',
-	'even',
-	'if',
-	'in',
-	'once',
-	'rather',
-	'since',
-	'so',
-	'than',
-	'though',
-	'till',
-	'unless',
-	'until',
-	'when',
-	'whenever',
-	'where',
-	'whereas',
-	'wherever',
-	'while',
-	
-	// prepositions
-	'with',
-	/*'aboard',
-	'about',
-	'above',
-	'across',
-	'after',
-	'against',
-	'along',
-	'amid',
-	'among',
-	'anti',
-	'around',
-	'as',
-	'at',
-	'before',
-	'behind',
-	'below',
-	'beneath',
-	'beside',
-	'besides',
-	'between',
-	'beyond',
-	'by',
-	'concerning',
-	'considering',
-	'despite',
-	'down',
-	'during',
-	'except',
-	'excepting',
-	'excluding',
-	'following',
-	'for',
-	'from',
-	'inside',
-	'into',
-	'like',
-	'minus',
-	'near',
-	'of',
-	'off',
-	'on',
-	'onto',
-	'opposite',
-	'outside',
-	'over',
-	'past',
-	'per',
-	'plus',
-	'regarding',
-	'round',
-	'since',
-	'than',
-	'through',
-	'to',
-	'toward',
-	'towards',
-	'under',
-	'underneath',
-	'unlike',
-	'until',
-	'up',
-	'upon',
-	'versus',
-	'via',
-	'with',
-	'within',
-	'without'*/
-];
 
 function cleanArray(actual){
   var newArray = new Array();
@@ -360,6 +254,11 @@ Passage = function(obj, id) {	// assumes json passage object from bibles.org api
     this.lastStrength = 0;
     this.lastReviewed;
     
+    console.log(this.path);
+    console.log(this.id);
+    console.log(this.display);
+    console.log(this.start_verse_id);
+    
     this.verses = [];
     if (obj.verses != undefined) {
     	this.verses = obj.verses;
@@ -402,7 +301,6 @@ Verse = function(text, number, passageDisplay) {
 	this.strength = 0;
 	this.lastStrength = 0;
 	this.lastReviewed;
-	this.phrases = this.parsePhrases(this.text);
 	this.parts = this.parseWords(this.text);
 };
 Verse.prototype = {
@@ -462,141 +360,7 @@ Verse.prototype = {
 		}
 		
 		return parts;
-	},
-	
-	parsePhrases: function(text) {
-		text = text.trim();
-		var bestSplitPos = 0,
-			bestSplitRank = 0,
-			bestSplitWord = '',
-			splits = [],
-			phrases = [],
-			curWord = '',
-			curWordStartPos = 0,
-			curWordCount = 0,
-			prevWord = '',
-			prevWordStartPos = 0,
-			prevWordRank = 0,
-			rank = 0;
-		
-		for (var i=0, len=text.length; i<len; i++) {
-			// current character
-			var char = text[i];
-			var isEndOfVerse = i==text.length-1;
-			//console.log('i: '+i+' out of '+(text.length-1)+':'+text[i]);
-			
-			// is part of a word
-			if (char.match(/[-'’a-zA-Z]/)) {
-				// beginning of a word
-				if (curWord == '') {
-					curWordStartPos = i;
-				}
-				
-				// building current word
-				curWord += char;
-				
-			// is a space or punctuation
-			} else {
-				if (curWord) {
-					curWordCount++;
-					
-					// rank current word based on position
-					rank = 1.0 - Math.abs(curWordCount - PHRASE_LENGTH) / RANK_FALLOFF;
-					rank *= POSITION_WEIGHT;
-					
-					// rank boost for previous word if coordinating conjunction
-					if (CONJ1.indexOf(curWord) > -1) {
-						prevWordRank += CONJ_BOOST;
-						
-					// rank boost for previous word if subordinating conjunction
-					} else if (CONJ2.indexOf(curWord) > -1) {
-						prevWordRank += CONJ2_BOOST;
-					}
-					
-					// try to end phrase at the end of the verse
-					if (isEndOfVerse) {
-						rank += 1.0;
-					}
-					
-					// smaller rank boost for weak punctuation
-					if (char.match(PUNC_REGEX)) {
-						rank += PUNC_BOOST;
-						
-					// rank boost for strong punctuation
-					} else if (char.match(PUNC2_REGEX)) {
-						rank += PUNC2_BOOST;
-					}
-					
-					// kill rank if less than minimum phrase length
-					if (curWordCount < MIN_LENGTH) {
-						rank = 0.0;
-					}
-					
-					//console.log(rank + '=' + curWord + '('+curWordCount+')');
-					
-					// save rank for current and previous word
-					if (rank > bestSplitRank || prevWordRank > bestSplitRank) {
-						if (rank > prevWordRank) {
-							bestSplitRank = rank;
-							bestSplitPos = i;
-							bestSplitWord = curWord;
-						} else {
-							bestSplitRank = prevWordRank;
-							bestSplitPos = prevWordPos;
-							bestSplitWord = prevWord;
-						}
-						//console.log('save rank: '+bestSplitRank+'='+bestSplitWord+'('+bestSplitPos+')');
-						//console.log('bestSpitPos: '+bestSplitPos);
-					}
-					
-					// if at word limit, choose split point
-					if (curWordCount == MAX_LENGTH || isEndOfVerse) {
-						//console.log('-----MAX WORD LENGTH-----');
-						if (bestSplitPos > 0) {
-							// use highest split point
-							splits.push(bestSplitPos);
-							//console.log('------SPLIT: '+bestSplitPos+' - '+bestSplitWord);
-							
-							// jump back to end of last phrase
-							if (!isEndOfVerse) {
-								i = bestSplitPos-1;
-							}
-							curWordCount = 0;
-							bestSplitPos = 0;
-							bestSplitRank = 0;
-							bestSplitWord = '';
-							prevWordRank = 0;
-							prevWordStartPos = 0;
-							prevWord = '';
-						}
-						
-					// assign previous word info
-					} else {
-						prevWord = curWord;
-						prevWordRank = rank;
-						prevWordPos = i;
-					}
-				}
-				
-				// allow for quotes, parentheticals at the end of a verse
-				if (text.length-i > 3) {
-					curWord = '';
-				}
-			}
-		}
-		//console.log(text);
-		for (var i=0, len=splits.length; i<len; i++) {
-			var endPos = splits[i]+1;
-			var startPos = 0;
-			if (i > 0) {
-				startPos = splits[i-1]+1;
-			}
-			var phrase = text.slice(startPos, endPos);
-			phrases.push(new Phrase(phrase));
-			//console.log('--- ' + phrase.trim());
-		}
-		return phrases;
-	},
+	}
 };
 
 Phrase = function(text) {
@@ -626,12 +390,20 @@ Word = function(text) {
 	this.hidden = false;
 };
 
-function VersesCntl($scope, $rootScope, localStorageService) {
+function VersesCntl($scope, $rootScope, PassageStorage) {
 	console.log('VersesCntl');
 	
 	var that = this;
 	$scope.displayPassage = function(passage) {
 		$scope.curPassage = passage;
+	};
+	
+	$scope.delete = function(passage) {
+		console.log('delete passage');
+		console.log(passage);
+		var index = $scope.passages.indexOf(passage);
+		$scope.passages.splice(index, 1);
+		PassageStorage.save();
 	};
 }
 
@@ -654,7 +426,7 @@ function AddChaptersCntl($scope, Books, $routeParams) {
 	$scope.chapters = chapters;
 }
 
-function AddVersesCntl($scope, $rootScope, $routeParams, localStorageService, Verses, Books, $location, Versions) {
+function AddVersesCntl($scope, $rootScope, $routeParams, localStorageService, Verses, Books, $location, Versions, PassageStorage) {
 	$scope.activeVerses = [];
 	$scope.loading = true;
 	$scope.displayName = '';
@@ -730,15 +502,10 @@ function AddVersesCntl($scope, $rootScope, $routeParams, localStorageService, Ve
 		passage.display = $scope.displayName;
 		passage.id = $rootScope.passages.length;
 		$rootScope.passages.push(passage);
-		savePassages();
+		PassageStorage.save();
 		
 		$location.path('Verses/'+passage.id);
 	};
-	
-	function savePassages() {
-		var flat_passages = JSON.stringify($rootScope.passages);
-		localStorageService.add('passages', flat_passages);
-	}
 	
 }
 
@@ -746,7 +513,7 @@ function ReviewCntl($scope) {
 	console.log('ReviewCntl');
 }
 
-function VerseLearnCntl($scope, $rootScope, $routeParams, localStorageService) {
+function VerseLearnCntl($scope, $rootScope, $routeParams, PassageStorage) {
 	console.log('VerseLearnCntl');
 	var that = this;
 	
@@ -818,11 +585,6 @@ function VerseLearnCntl($scope, $rootScope, $routeParams, localStorageService) {
 			},
 		}
 	];
-	
-	function savePassages() {
-		var flat_passages = JSON.stringify($rootScope.passages)
-		localStorageService.add('passages', flat_passages);
-	}
 	
 	$scope.selectVerse = function(verse) {
 		if (verse != $scope.activeVerse) {
@@ -948,7 +710,7 @@ function VerseLearnCntl($scope, $rootScope, $routeParams, localStorageService) {
 						if ($scope.activeVerse.strength < $scope.strengthMax) {
 							$scope.activeVerse.strength++;
 							updatePassageStrength();
-							savePassages();
+							PassageStorage.save();
 						}
 						// reset starting values
 						if ($scope.activeVerse.strength < $scope.strengthMax) {
@@ -1001,7 +763,7 @@ function ProfileCntl($scope) {
 	console.log('ProfileCntl');
 }
 
-function MainCntl($scope, $rootScope, $route, $routeParams, $location, $http, Verses, Versions, localStorageService) {
+function MainCntl($scope, $rootScope, $route, $routeParams, $location, $http, Verses, Versions, localStorageService, PassageStorage) {
 	// function init
 	$scope.hasPrefs = false;
 	$scope.selectedLanguage = localStorageService.get('language');
@@ -1016,23 +778,7 @@ function MainCntl($scope, $rootScope, $route, $routeParams, $location, $http, Ve
 		$scope.hasPrefs = true;
 	};
 	
-	this.parseObjects = function(jsonstr, Passage) {
-		var newObjs = [];
-		var objs = JSON.parse(jsonstr);
-		angular.forEach(objs, function(obj, i) {
-			var passage = new Passage(obj);
-			passage.id = i;
-			newObjs.push(passage);
-		});
-		return newObjs;
-	};
-	
-	var passagestr = localStorageService.get('passages');
-	if (passagestr == null) {
-		$rootScope.passages = [];
-	} else {
-		$rootScope.passages = this.parseObjects(passagestr, Passage);
-	}
+	$rootScope.passages = PassageStorage.get(Passage);
 	
 	this.xp = 0,
 	this.verseCount = 0,
