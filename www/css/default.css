@@ -71,6 +71,29 @@ a:focus, a:active {
 .passageList .verseStrength {
 	float: right;
 }
+.passageList > li {
+	position: relative;
+}
+.editOptions {
+	position: absolute;
+	top: 0;
+	right: -160px;
+	-webkit-transition: right .3s ease-in-out 0s;
+}
+.editOptions.visible {
+	right: 0;
+}
+.editOptions > a, .editOptions > span {
+	display: inline-block;
+}
+.editPassageBtn, .deletePassageBtn {
+	background-color: #ccc;
+	color: #fff;
+	padding: .5em .8em;
+}
+.deletePassageBtn {
+	background-color: red;
+}
 .sectionName {
 	margin: 0;
 	padding: .5em 1.4em;
