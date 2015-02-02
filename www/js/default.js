@@ -616,10 +616,13 @@ function VerseLearnCntl($scope, $rootScope, $routeParams, PassageStorage) {
 		var wordsUsed = [];
 		
 		angular.forEach(words, function(word, index) {
-			var probability = needed / (count-index);
-			if (Math.random() <= probability && wordsUsed.indexOf(word.text) == -1) {
+			var probability = 1;
+			if (needed < count) {
+				probability = needed / (count-index);
+			}
+			if (Math.random() <= probability && wordsUsed.indexOf(word) == -1) {
 				$scope.hiddenWords.push(word);
-				wordsUsed.push(word.text);
+				wordsUsed.push(word);
 				word.hidden = true;
 				needed--;
 			} else {
@@ -689,7 +692,9 @@ function VerseLearnCntl($scope, $rootScope, $routeParams, PassageStorage) {
 	}
 	
 	$scope.chooseWord = function(index) {
+		//console.log(index);
 		var word = $scope.hiddenWordsShuffled[index];
+		//console.log(word);
 		if (word != undefined) {
 			var nextWord = $scope.hiddenWords[0];
 			if (word.text == nextWord.text) {
