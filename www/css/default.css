@@ -232,7 +232,6 @@ a:focus, a:active {
 }
 .word {
 	display: inline-block;
-	margin-right: 5px;
 	padding: .1em .25em;
 	overflow: hidden;
 	-webkit-transition: all .3s ease-in-out 0s;
@@ -242,7 +241,9 @@ a:focus, a:active {
 }
 .hideWord {
 	background-color: #444;
-	padding:  .1em .75em;
+	padding:  0 .75em;
+	line-height: 1.8em;
+	margin-bottom: .4em;
 }
 .hideWord.active {
 	background-color: #999;
