@@ -2,10 +2,10 @@
 <widget id="com.passages.app" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Passages</name>
     <description>
-        A sample Apache Cordova application that responds to the deviceready event.
+        The best app around for learning passages of the Bible.
     </description>
-    <author email="dev@cordova.apache.org" href="http://cordova.io">
-        Apache Cordova Team
+    <author email="jleineweber@gmail.com" href="http://passages.io">
+        Joel and Dan
     </author>
     <content src="index.html" />
     <access origin="https://bibles.org" />
