@@ -1,0 +1,22 @@
+// mixins
+
+@mixin center-vertical {
+	position: relative;
+	top: 50%;
+	// transform: translateY(-50%);
+	@include transform(translateY(-50%));
+}
+
+@mixin center-vertical-absolute {
+	position: absolute;
+	top: 50%;
+	// transform: translateY(-50%);
+	@include transform(translateY(-50%));
+}
+
+@mixin hide-text {
+	// hides text
+	text-indent: 100%; // get out of the window
+	white-space: nowrap; // don't come back in
+	overflow: hidden; // no really, don't come back in
+}

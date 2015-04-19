@@ -1,0 +1,30 @@
+// Passages App
+
+//	Variables
+
+	// Passages branding colors
+	$color-passages:#00BCDD;
+	$color-link: #04b4db;
+	//
+
+	//responsive-target-widths 			em's altered		em exact		pixels
+
+	//$width-mobile-portrait-end: 		31.2499999999em; 	//31.1875em; 	//499px;
+	$width-mobile-portrait-end: 							31.1875em;
+	$width-mobile-landscape: 			31.25em; 							//500px;
+	//$width-mobile-landscape-end: 		37.4999999999em; 	//37.4375em; 	//599px;
+	$width-mobile-landscape-end: 							37.4375em;
+
+	$width-tablet-portrait: 			37.5em; 							//600px;
+
+	$width-tablet-portrait-mid-before:						42.4375em;		//679px;
+	$width-tablet-portrait-mid:			42.5em; 							//680px;
+
+	//$width-tablet-portrait-end: 		56.2499999999em; 	//56.1875em;	//899px;
+	$width-tablet-portrait-end: 							56.1875em;
+	$width-tablet-landscape: 			56.25em; 							//900px;
+	$width-tablet-landscape-end: 		64em; 								//1024px;
+	$width-desktop: 					75em; 								//1200px;
+
+//	Global Imports
+	@import "compass/css3";

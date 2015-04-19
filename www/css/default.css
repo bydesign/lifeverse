@@ -1,368 +1,432 @@
 body {
-	background-color: #333;
-	color: #fff;
-	font-family: 'Lato', sans-serif;
-	margin: 0;
-	font-size: 1.2em;
-	font-weight: 300;
-    padding-top: 20px;
+  background-color: #333;
+  color: #fff;
+  font-family: 'Lato', sans-serif;
+  margin: 0;
+  font-size: 1.2em;
+  font-weight: 300;
+  padding-top: 20px;
 }
+
 #doc, #doc2 {
-	padding: 2em 3em;
+  padding: 2em 3em;
 }
 
 #doc2, #hd {
-	position: absolute;
-	top: 0;
-	left: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
+
 #hd {
-	z-index: 700;
+  z-index: 700;
 }
+
 #doc {
-	position: relative;
-	z-index: 500;
+  position: relative;
+  z-index: 500;
 }
+
 #doc2 {
-	-webkit-filter: blur(24px);
-	z-index: 10;
+  -webkit-filter: blur(24px);
+  z-index: 10;
 }
 
 #doc2 * {
-	color: transparent;
+  color: transparent;
 }
+
 #doc2 .v {
-	background-color: #FFFF00;
+  background-color: #FFFF00;
 }
+
 a {
-	color: #fff;
-	-webkit-tap-highlight-color: rgba(0,0,0,0);
+  color: #fff;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
+
 a:focus, a:active {
-	background-color: rgba(255,255,255,.1);
+  background-color: rgba(255, 255, 255, 0.1);
 }
+
 .leftBtn {
-	float: left;
+  float: left;
 }
+
 .rightBtn {
-	float: right;
+  float: right;
 }
+
 .screenTitle {
-	text-align: center;
+  text-align: center;
 }
+
 .addPassage {
-	text-align: right;
-	display: block;
-	text-decoration: none;
-	padding: .5em 1em;
+  text-align: right;
+  display: block;
+  text-decoration: none;
+  padding: .5em 1em;
 }
+
 .passageList, .sectionList, .bookList, .chapterList {
-	padding: 0;
-	margin: 0;
-	list-style: none;
-	clear: both;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  clear: both;
 }
+
 .passageList a, .bookList a, .chapterList a, .leftBtn {
-	display: block;
-	padding: .5em 1em;
-	text-decoration: none;
-	border-top: solid 1px rgba(255,255,255,.2);
+  display: block;
+  padding: .5em 1em;
+  text-decoration: none;
+  border-top: solid 1px rgba(255, 255, 255, 0.2);
 }
+
 .passageList .verseStrength {
-	float: right;
+  float: right;
 }
+
 .passageList > li {
-	position: relative;
+  position: relative;
 }
+
 .editOptions {
-	position: absolute;
-	top: 0;
-	right: -160px;
-	-webkit-transition: right .3s ease-in-out 0s;
+  position: absolute;
+  top: 0;
+  right: -160px;
+  -webkit-transition: right .3s ease-in-out 0s;
 }
+
 .editOptions.visible {
-	right: 0;
+  right: 0;
 }
+
 .editOptions > a, .editOptions > span {
-	display: inline-block;
+  display: inline-block;
 }
+
 .editPassageBtn, .deletePassageBtn {
-	background-color: #ccc;
-	color: #fff;
-	padding: .5em .8em;
+  background-color: #ccc;
+  color: #fff;
+  padding: .5em .8em;
 }
+
 .deletePassageBtn {
-	background-color: red;
+  background-color: red;
 }
+
 .sectionName {
-	margin: 0;
-	padding: .5em 1.4em;
-	font-size: .7em;
-	font-weight: normal;
-	background-color: rgba(0,0,0,.2);
-	border-top: solid 1px rgba(255,255,255,.2);
-	color: #aaa;
-	text-transform: uppercase;
+  margin: 0;
+  padding: .5em 1.4em;
+  font-size: .7em;
+  font-weight: normal;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-top: solid 1px rgba(255, 255, 255, 0.2);
+  color: #aaa;
+  text-transform: uppercase;
 }
+
 .gospels {
-	border-top: solid 6px rgba(255,255,255,.3);
+  border-top: solid 6px rgba(255, 255, 255, 0.3);
 }
+
 .bookList {
-	margin-bottom: .6em;
+  margin-bottom: .6em;
 }
+
 .bookName, .screenTitle {
-	margin: 0;
+  margin: 0;
 }
+
 .verses, .phrases {
-	list-style: none;
-	padding: 0;
-	line-height: 2.3em;
+  list-style: none;
+  padding: 0;
+  line-height: 2.3em;
 }
+
 .phrase {
-	color: #999;
-	line-height: 1.4em;
-	margin-bottom: .2em;
-	position: relative;
-	display: inline;
+  color: #999;
+  line-height: 1.4em;
+  margin-bottom: .2em;
+  position: relative;
+  display: inline;
 }
+
 .phraseStrength, .verseStrength {
-	position: absolute;
-	left: 5px;
-	top: 15px;
-	width: 20px;
-	height: 20px;
-	display: block;
-	font-size: 10px;
-	line-height: 24px;
-	color: #666;
+  position: absolute;
+  left: 5px;
+  top: 15px;
+  width: 20px;
+  height: 20px;
+  display: block;
+  font-size: 10px;
+  line-height: 24px;
+  color: #666;
 }
+
 .verseStrength {
-	position: static;
-	display: inline-block;
+  position: static;
+  display: inline-block;
 }
+
 .phrase.active {
-	color: #fff;
+  color: #fff;
 }
+
 .verseNum {
-	float: left;
-	border: solid 1px #fff;
-	border-radius: 100%;
-	margin-top: 10px;
-	display: inline-block;
-	font-size: 20px;
-	width: 30px;
-	height: 30px;
-	text-align: center;
-	line-height: 30px;
+  float: left;
+  border: solid 1px #fff;
+  border-radius: 100%;
+  margin-top: 10px;
+  display: inline-block;
+  font-size: 20px;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  line-height: 30px;
 }
+
 .active > .verseNum {
-	background-color: #00FF00;
-	border-color: #66FF00;
-	color: #000;
+  background-color: #00FF00;
+  border-color: #66FF00;
+  color: #000;
 }
+
 .verseRef {
-	color: #666;
-	font-size: 14px;
-	text-transform: uppercase;
-	margin-left: 1em;
-	margin-top: 2em;
+  color: #666;
+  font-size: 14px;
+  text-transform: uppercase;
+  margin-left: 1em;
+  margin-top: 2em;
 }
+
 .verse.active > .verseRef {
-	color: #fff;
+  color: #fff;
 }
+
 .verseList {
-	padding-left: 0;
-	list-style: none;
+  padding-left: 0;
+  list-style: none;
 }
+
 .verseList li {
-	margin-bottom: 1px;
-	padding: .25em .5em;
+  margin-bottom: 1px;
+  padding: .25em .5em;
 }
+
 .verseList li.active {
-	background-color: #444;
+  background-color: #444;
 }
+
 .verseText {
-	display: inline;
-	margin-left: 12px;
+  display: inline;
+  margin-left: 12px;
 }
+
 .steps > li {
-	list-style: none;
-	display: inline-block;
-	height: 10px;
-	width: 10px;
-	background-color: rgba(255,255,255,.5);
-	margin-right: 5px;
-		opacity: .75;
-		border-radius: 25%;
+  list-style: none;
+  display: inline-block;
+  height: 10px;
+  width: 10px;
+  background-color: rgba(255, 255, 255, 0.5);
+  margin-right: 5px;
+  opacity: .75;
+  border-radius: 25%;
 }
+
 .steps > li.cur {
-	background-color: #fff;
+  background-color: #fff;
 }
+
 .steps > li.rem {
-	opacity: 1;
-	border-radius: 0;
+  opacity: 1;
+  border-radius: 0;
 }
+
 .reference {
-	text-align: center;
+  text-align: center;
 }
+
 .hearts {
-	float: right;
-	margin: 0;
+  float: right;
+  margin: 0;
 }
+
 .hearts > li {
-	color: #666;
-	display: inline-block;
-	list-style: none;
+  color: #666;
+  display: inline-block;
+  list-style: none;
 }
+
 .hearts > li.active {
-	color: #fff;
+  color: #fff;
 }
+
 .remPhrase > li.cur {
-	color: #fff;
-	font-weight: bold;
+  color: #fff;
+  font-weight: bold;
 }
+
 .playing {
-	color: red;
+  color: red;
 }
+
 .wordSelections {
-	background-color: rgba(255,255,255,.1);
-	min-height: 50px;
-	margin-bottom: .5em;
-	padding: .25em;
+  background-color: rgba(255, 255, 255, 0.1);
+  min-height: 50px;
+  margin-bottom: .5em;
+  padding: .25em;
 }
+
 .word {
-	display: inline-block;
-	padding: .1em .25em;
-	overflow: hidden;
-	-webkit-transition: all .3s ease-in-out 0s;
+  display: inline-block;
+  padding: .1em .25em;
+  overflow: hidden;
+  -webkit-transition: all .3s ease-in-out 0s;
 }
+
 .tip {
-	font-size: .5em;
+  font-size: .5em;
 }
+
 .hideWord {
-	background-color: #444;
-	padding:  0 .75em;
-	line-height: 1.8em;
-	margin-bottom: .4em;
+  background-color: #444;
+  padding: 0 .75em;
+  line-height: 1.8em;
+  margin-bottom: .4em;
 }
+
 .hideWord.active {
-	background-color: #999;
+  background-color: #999;
 }
+
 .word > .wordText {
-	-webkit-transition: all .3s ease-in-out 0s;
-	position: relative;
+  -webkit-transition: all .3s ease-in-out 0s;
+  position: relative;
 }
+
 .hideWord > .wordText {
-	top: 100px;
+  top: 100px;
 }
+
 .filled > .wordText {
-	top: 0;
+  top: 0;
 }
+
 .overlay {
-	position: fixed;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background-color: rgba(0,0,0,.8);
-	z-index: 1000;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
 }
+
 .alert {
-	z-index: 1100;
-	background-color: #fff;
-	color: #444;
-	border-radius: 100%;
-	width: 66%;
-	height: 0;
-	padding-top: 66%;
-	margin-left: -33%;
-	margin-top: -50%;
-	text-align: center;
-	left: 50%;
-	top: 50%;
-	display: none;
+  z-index: 1100;
+  background-color: #fff;
+  color: #444;
+  border-radius: 100%;
+  width: 66%;
+  height: 0;
+  padding-top: 66%;
+  margin-left: -33%;
+  margin-top: -50%;
+  text-align: center;
+  left: 50%;
+  top: 50%;
+  display: none;
 }
+
 .alert > .msg, .alert > .verseProgress {
-	position: absolute;
-	top: 20%;
-	left:0;
-	width: 100%;
+  position: absolute;
+  top: 20%;
+  left: 0;
+  width: 100%;
 }
+
 .alert > .verseProgress {
-	font-size: 4em;
-	top: 30%;
+  font-size: 4em;
+  top: 30%;
 }
+
 .fixedHeader {
-	top: 0;
-	bottom: auto;
-	font-size: .6em;
-	padding: .5em;
+  top: 0;
+  bottom: auto;
+  font-size: .6em;
+  padding: .5em;
 }
+
 .fixedHeader > p {
-	margin: 0;
+  margin: 0;
 }
+
 .lessonWrap {
-	padding-top: 48px;
-	padding-bottom: 100px;
+  padding-top: 48px;
+  padding-bottom: 100px;
 }
 
 .wordChoices {
-	position: fixed;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	background-color: rgba(0,0,0,.8);
-	margin: 0;
-	padding: 4px 3px 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  margin: 0;
+  padding: 4px 3px 0;
 }
+
 .word-switch-container {
-	padding: 0;
-	margin: 0;
-	overflow:hidden;
-	display: inline-block;
-	position: relative;
-    text-align: center;
-    width: 33.332%;
-    height: 44px;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  display: inline-block;
+  position: relative;
+  text-align: center;
+  width: 33.332%;
+  height: 44px;
 }
+
 .wordChoice > .wordText {
-	position: absolute;
-	top: 1px;
-	right: 3px;
-	bottom: 1px;
-	left: 3px;
-	text-align: center;
-	line-height: 42px;
-	padding: 0;
-	background-color: rgba(255,255,255,.1);
-	-webkit-transition: all .3s ease-in-out 0s;
+  position: absolute;
+  top: 1px;
+  right: 3px;
+  bottom: 1px;
+  left: 3px;
+  text-align: center;
+  line-height: 42px;
+  padding: 0;
+  background-color: rgba(255, 255, 255, 0.1);
+  -webkit-transition: all .3s ease-in-out 0s;
 }
+
 .wordChoices .wordText.active {
-	background-color: rgba(255,255,255,.5);
+  background-color: rgba(255, 255, 255, 0.5);
 }
 
 .animate-switch {
-	padding:10px;
+  padding: 10px;
 }
 
 .animate-switch.ng-animate {
-	-webkit-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
-	transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
-
-	position:absolute;
-	top:0;
-	left:0;
-	right:0;
-	bottom:0;
+  -webkit-transition: all cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s;
+  transition: all cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 .animate-switch.ng-leave.ng-leave-active {
-	top:-50px;
-}
-.animate-switch.ng-leave,
-.animate-switch.ng-enter.ng-enter-active {
-	top:0;
-}
-.animate-switch.ng-enter {
-	top:50px;
+  top: -50px;
 }
 
+.animate-switch.ng-leave,
+.animate-switch.ng-enter.ng-enter-active {
+  top: 0;
+}
+
+.animate-switch.ng-enter {
+  top: 50px;
+}
